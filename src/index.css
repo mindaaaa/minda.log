@@ -1,0 +1,304 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 260 20% 98%;
+  --foreground: 260 20% 10%;
+  --border: 260 10% 90%;
+  --card: 0 0% 100%;
+  --card-foreground: 260 20% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 260 20% 10%;
+  --primary: 340 100% 70%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 260 10% 90%;
+  --secondary-foreground: 260 20% 10%;
+  --muted: 260 10% 96%;
+  --muted-foreground: 260 10% 40%;
+  --accent: 340 100% 70%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 260 10% 90%;
+  --ring: 340 100% 70%;
+  --radius: 0.75rem;
+  --app-font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── Porto theme variables ─── */
+
+:root,
+[data-theme="aurora"] {
+  --porto-grad-start: #ff6b9d;
+  --porto-grad-mid:   #c084fc;
+  --porto-grad-end:   #60a5fa;
+  --porto-glass:         rgba(255, 255, 255, 0.08);
+  --porto-glass-strong:  rgba(255, 255, 255, 0.15);
+  --porto-glass-border:  rgba(255, 255, 255, 0.18);
+  --porto-glass-strong-inset: rgba(255, 255, 255, 0.30);
+  --porto-radius-glass:  1.5rem;
+  --porto-radius-card:   1.5rem;
+  --porto-radius-small:  0.75rem;
+  --porto-heading-font:  'Inter', system-ui, sans-serif;
+  --porto-heading-track: -0.025em;
+  --porto-heading-weight: 700;
+  --porto-section-label-color: #f472b6;
+  --porto-body-font-size: 1rem;
+}
+
+[data-theme="midnight"] {
+  --porto-grad-start: #0ea5e9;
+  --porto-grad-mid:   #22d3ee;
+  --porto-grad-end:   #818cf8;
+  --porto-glass:         rgba(5, 20, 45, 0.50);
+  --porto-glass-strong:  rgba(8, 28, 60, 0.65);
+  --porto-glass-border:  rgba(34, 211, 238, 0.20);
+  --porto-glass-strong-inset: rgba(34, 211, 238, 0.15);
+  --porto-radius-glass:  0.75rem;
+  --porto-radius-card:   0.75rem;
+  --porto-radius-small:  0.375rem;
+  --porto-heading-font:  'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --porto-heading-track: 0.04em;
+  --porto-heading-weight: 700;
+  --porto-section-label-color: #22d3ee;
+  --porto-body-font-size: 0.95rem;
+}
+
+[data-theme="verdant"] {
+  --porto-grad-start: #10b981;
+  --porto-grad-mid:   #34d399;
+  --porto-grad-end:   #d97706;
+  --porto-glass:         rgba(255, 252, 245, 0.07);
+  --porto-glass-strong:  rgba(255, 252, 245, 0.13);
+  --porto-glass-border:  rgba(255, 252, 245, 0.22);
+  --porto-glass-strong-inset: rgba(255, 252, 245, 0.28);
+  --porto-radius-glass:  1.25rem;
+  --porto-radius-card:   1.25rem;
+  --porto-radius-small:  0.625rem;
+  --porto-heading-font:  'Playfair Display', Georgia, 'Times New Roman', serif;
+  --porto-heading-track: -0.03em;
+  --porto-heading-weight: 700;
+  --porto-section-label-color: #10b981;
+  --porto-body-font-size: 1.0125rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    cursor: none !important;
+  }
+  body {
+    @apply font-sans antialiased text-foreground;
+    background-color: #0f0a1c;
+    color: #ffffff;
+  }
+}
+
+/* ─── Glass utilities (theme-aware) ─── */
+
+.glass {
+  background: var(--porto-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--porto-glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.glass-strong {
+  background: var(--porto-glass-strong);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--porto-glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--porto-glass-strong-inset);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--porto-glass-border);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: var(--porto-grad-start);
+  outline: none;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.40);
+}
+
+/* ─── Gradient utilities (theme-aware) ─── */
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--porto-grad-start) 0%, var(--porto-grad-mid) 50%, var(--porto-grad-end) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--porto-grad-start) 0%, var(--porto-grad-mid) 50%, var(--porto-grad-end) 100%);
+}
+
+/* ─── Section-label color ─── */
+
+.theme-section-label {
+  color: var(--porto-section-label-color);
+}
+
+/* ─── Per-theme heading typography ─── */
+
+[data-theme="midnight"] h1,
+[data-theme="midnight"] h2.theme-heading {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+[data-theme="verdant"] h1,
+[data-theme="verdant"] h2.theme-heading {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* ─── Per-theme border radius overrides for glass cards ─── */
+
+[data-theme="midnight"] .glass,
+[data-theme="midnight"] .glass-strong {
+  border-radius: var(--porto-radius-card);
+}
+
+[data-theme="midnight"] .rounded-3xl {
+  border-radius: var(--porto-radius-card);
+}
+
+[data-theme="midnight"] .rounded-2xl {
+  border-radius: calc(var(--porto-radius-card) - 0.125rem);
+}
+
+[data-theme="midnight"] .rounded-xl {
+  border-radius: calc(var(--porto-radius-card) - 0.25rem);
+}
+
+[data-theme="midnight"] .rounded-full {
+  border-radius: 9999px;
+}
+
+[data-theme="verdant"] .glass,
+[data-theme="verdant"] .glass-strong {
+  border-radius: var(--porto-radius-card);
+}
+
+[data-theme="verdant"] .rounded-3xl {
+  border-radius: var(--porto-radius-card);
+}
+
+[data-theme="verdant"] .rounded-2xl {
+  border-radius: calc(var(--porto-radius-card) - 0.125rem);
+}
+
+[data-theme="verdant"] .rounded-full {
+  border-radius: 9999px;
+}
+
+/* ─── Midnight: section label small text monospace flavor ─── */
+
+[data-theme="midnight"] .theme-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+}
+
+/* ─── Verdant: bigger spacing feel ─── */
+
+[data-theme="verdant"] body,
+[data-theme="verdant"] p {
+  font-size: var(--porto-body-font-size);
+}
+
+/* ─── Animations ─── */
+
+@keyframes float1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -50px) scale(1.1); }
+  66%  { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes float2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-40px, 30px) scale(0.9); }
+  66%  { transform: translate(20px, -30px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes float3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(20px, 40px) scale(1.1); }
+  66%  { transform: translate(-30px, -20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.blob-1 { animation: float1 20s infinite ease-in-out; }
+.blob-2 { animation: float2 25s infinite ease-in-out; }
+.blob-3 { animation: float3 22s infinite ease-in-out; }
