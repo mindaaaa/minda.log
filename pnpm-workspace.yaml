@@ -1,0 +1,37 @@
+# 보안: npm 공급망 공격 방지 (출시 후 24시간 지난 패키지만 설치 허용)
+# 긴급 패키지 업데이트가 필요할 때만 아래 minimumReleaseAgeExclude에 추가하세요
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude: []
+
+packages:
+  - '.'
+
+catalog:
+  '@tailwindcss/vite': ^4.1.14
+  '@types/node': ^25.3.3
+  '@types/react': ^19.2.0
+  '@types/react-dom': ^19.2.0
+  '@vitejs/plugin-react': ^5.0.4
+  class-variance-authority: ^0.7.1
+  clsx: ^2.1.1
+  framer-motion: ^12.23.24
+  lucide-react: ^0.545.0
+  react: 19.1.0
+  react-dom: 19.1.0
+  tailwind-merge: ^3.3.1
+  tailwindcss: ^4.1.14
+  tsx: ^4.21.0
+  vite: ^7.3.0
+  zod: ^3.25.76
+
+autoInstallPeers: false
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - unrs-resolver
+
+overrides:
+  # drizzle-kituses는 취약한 이전 버전에서 내부적으로 esbuild를 사용하기 때문에 이를 재정의합니다.
+  '@esbuild-kit/esm-loader': 'npm:tsx@^4.21.0'
+  esbuild: '0.27.3'
