@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build 
+dist/
+
+# 환경 변수·로컬 비밀 (예시만 커밋: .env.example)
+.env
+.env.local
+.env.*.local
+
+# 로그
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript 증분 빌드 정보
+*.tsbuildinfo
+
+# 테스트 커버리지 (추가 시)
+coverage/
+
+# 도구 캐시
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# JetBrains
+.idea/
+
+# VS Code 
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
