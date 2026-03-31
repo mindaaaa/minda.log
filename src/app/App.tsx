@@ -6,6 +6,7 @@ import WindowChrome from '@/widgets/window-chrome/WindowChrome';
 import About from '@/features/about/About';
 import Projects from '@/features/projects/Projects';
 import ProjectDetail from '@/features/projects/ProjectDetail';
+import { projects } from '@/features/projects/data/projects';
 import Study from '@/features/study/Study';
 import EasterEgg from '@/features/easter-egg/EasterEgg';
 import DevPhilosophy from '@/features/dev-philosophy/DevPhilosophy';
@@ -14,15 +15,38 @@ import type { Project } from '@/features/projects/model/types';
 import { WINDOW_TITLES } from '@/config/window-titles';
 import {
   APP_SECTIONS,
+  projectSlugFromPathname,
+  pathnameForProjectSlug,
   pathnameForSection,
   sectionFromPathname,
   type AppSection,
 } from '@/app/pathSync';
 
-function readRoute(): { section: AppSection; notFound: boolean } {
+function projectBySlug(slug: string): Project | null {
+  return projects.find((project) => project.slug === slug) ?? null;
+}
+
+function readRoute(): {
+  section: AppSection;
+  notFound: boolean;
+  selectedProject: Project | null;
+} {
   const s = sectionFromPathname(window.location.pathname);
-  if (s !== null) return { section: s, notFound: false };
-  return { section: 'about', notFound: true };
+  if (s === null) {
+    return { section: 'about', notFound: true, selectedProject: null };
+  }
+
+  if (s === 'projects') {
+    const slug = projectSlugFromPathname(window.location.pathname);
+    if (!slug) return { section: s, notFound: false, selectedProject: null };
+    const matchedProject = projectBySlug(slug);
+    if (!matchedProject) {
+      return { section: 'about', notFound: true, selectedProject: null };
+    }
+    return { section: s, notFound: false, selectedProject: matchedProject };
+  }
+
+  return { section: s, notFound: false, selectedProject: null };
 }
 
 const initialRoute = readRoute();
@@ -32,7 +56,9 @@ export default function App() {
     initialRoute.section,
   );
   const [pathNotFound, setPathNotFound] = useState(initialRoute.notFound);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(
+    initialRoute.selectedProject,
+  );
   const [isMobile, setIsMobile] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [easterEggType, setEasterEggType] = useState<
@@ -79,17 +105,12 @@ export default function App() {
 
   useEffect(() => {
     const onPopState = () => {
-      const s = sectionFromPathname(window.location.pathname);
-      setSelectedProject(null);
+      const route = readRoute();
       setEasterEggType(null);
       setIsMinimized(false);
-      if (s === null) {
-        setPathNotFound(true);
-        setActiveSection('about');
-      } else {
-        setPathNotFound(false);
-        setActiveSection(s);
-      }
+      setPathNotFound(route.notFound);
+      setActiveSection(route.section);
+      setSelectedProject(route.selectedProject);
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -116,6 +137,24 @@ export default function App() {
     setSelectedProject(project);
     setIsMinimized(false);
     setEasterEggType(null);
+    setPathNotFound(false);
+    setActiveSection('projects');
+    window.history.pushState(
+      { section: 'projects', projectSlug: project.slug },
+      '',
+      pathnameForProjectSlug(project.slug),
+    );
+  };
+
+  const handleProjectBack = () => {
+    setSelectedProject(null);
+    setPathNotFound(false);
+    setActiveSection('projects');
+    window.history.pushState(
+      { section: 'projects' },
+      '',
+      pathnameForSection('projects'),
+    );
   };
 
   const contentKey = selectedProject
@@ -265,7 +304,7 @@ export default function App() {
                       >
                         <ProjectDetail
                           project={selectedProject}
-                          onBack={() => setSelectedProject(null)}
+                          onBack={handleProjectBack}
                         />
                       </motion.div>
                     ) : pathNotFound ? (

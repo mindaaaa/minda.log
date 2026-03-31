@@ -68,6 +68,7 @@ export interface ProjectClosing {
 
 export interface Project {
   id: number;
+  slug: string;
   title: string;
   description: string;
   longDescription: string;

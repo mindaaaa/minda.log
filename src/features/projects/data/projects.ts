@@ -3,6 +3,7 @@ import type { Project } from "../model/types";
 export const projects: Project[] = [
   {
     id: 1,
+    slug: "joka",
     title: "JOKA (가족 중심 사진 아카이브 PWA)",
     period: "2026.01 – 현재",
     role: "Co-founder & Frontend Lead · 2인 팀",
@@ -191,6 +192,7 @@ const log = {
   },
   {
     id: 2,
+    slug: "locus",
     title: "Locus (공간 기반 기록 서비스)",
     period: "2025.08 – 2026.02",
     role: "Frontend Lead · Naver Boostcamp 그룹 프로젝트",
@@ -440,6 +442,7 @@ if (!isValidBounds(bounds)) {
   },
   {
     id: 3,
+    slug: "mint",
     title: "MINT (커스텀 스크립트 언어 인터프리터)",
     period: "2025.11",
     role: "개인 프로젝트 · CLI + 웹 플레이그라운드",
@@ -547,6 +550,7 @@ export class MintError extends Error {
   },
   {
     id: 4,
+    slug: "mini-git",
     title: "mini-git (Git 학습용 CLI)",
     period: "2025.03—2025.06",
     role: "개인 학습 프로젝트",
@@ -655,6 +659,7 @@ export class MintError extends Error {
   },
   {
     id: 5,
+    slug: "hanzawa-kanji",
     title: "hanzawa-kanji (일본 상용한자 학습)",
     period: "2025.03 – 2025.04",
     role: "API(Kotlin) + Web · 이력서 기간은 최종본 우선",

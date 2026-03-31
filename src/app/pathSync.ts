@@ -29,3 +29,18 @@ export function pathnameForSection(section: AppSection): string {
   if (section === 'about') return base;
   return `${base}${section}`;
 }
+
+export function projectSlugFromPathname(pathname: string): string | null {
+  const p = stripBasePath(pathname);
+  const segments = p.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+  if (segments[0] !== 'projects') return null;
+  const slug = segments[1];
+  return slug ? decodeURIComponent(slug) : null;
+}
+
+export function pathnameForProjectSlug(slug: string): string {
+  const base = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL
+    : `${import.meta.env.BASE_URL}/`;
+  return `${base}projects/${encodeURIComponent(slug)}`;
+}
