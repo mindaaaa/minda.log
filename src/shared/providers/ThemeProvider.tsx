@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { themes, type Theme, type ThemeId } from '@/shared/lib/themes';
 
 interface ThemeContextValue {
@@ -14,18 +14,15 @@ const ThemeContext = createContext<ThemeContextValue>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themeId, setThemeId] = useState<ThemeId>(() => {
-    return (localStorage.getItem('spot-theme') as ThemeId) ?? 'aurora';
-  });
+  const themeId: ThemeId = 'aurora';
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeId);
-    localStorage.setItem('spot-theme', themeId);
   }, [themeId]);
 
   return (
     <ThemeContext.Provider
-      value={{ theme: themes[themeId], themeId, setTheme: setThemeId }}
+      value={{ theme: themes[themeId], themeId, setTheme: () => {} }}
     >
       {children}
     </ThemeContext.Provider>
