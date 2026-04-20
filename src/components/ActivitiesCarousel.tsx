@@ -11,6 +11,7 @@ import imgHttp from '@assets/activities/http.webp';
 import imgMindjuk from '@assets/activities/mindjuk.webp';
 import imgBoostStudy from '@assets/activities/boostStudy.png';
 import imgOmnivorous from '@assets/activities/omnivorousStudy.webp';
+import imgVibeCoding from '@assets/activities/vibe-coding.webp';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,23 @@ const ACTIVITIES: Activity[] = [
     ],
     connection:
       '지속적으로 성장하는 학습 습관을 루틴화하고, 유연한 사고방식을 길렀습니다.',
+  },
+  {
+    id: 'vibe-coding',
+    period: '2026.04',
+    title: 'AI 바이브코딩\n대회 (4인 팀)',
+    tag: '공모전',
+    accent: '#A5D8FF',
+    image: imgVibeCoding,
+    learn:
+      '4인 팀으로 AI 알고리즘 시각화 디버거(Frogger)를 1주일 안에 설계·구현하며, 팀 전체가 같은 Claude를 쓸 때의 컨텍스트 공유 방식을 구조로 합의하는 경험을 했습니다.',
+    points: [
+      '파이프라인 단위(실행 · AI · 렌더)로 역할 자율 분담',
+      '계층형 CLAUDE.md로 레이어별 계약을 팀 공통 언어로 고정',
+      '제출 후 관찰된 한계를 다음 설계 기준으로 승격시키는 회고',
+    ],
+    connection:
+      '팀 단위 AI 협업에서 먼저 부서지는 건 기술이 아니라 "공통 문서의 신선도"라는 감각을 체득했습니다.',
   },
 ];
 
