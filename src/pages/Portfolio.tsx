@@ -16,6 +16,7 @@ import { LocusDetail } from '@/components/LocusDetail';
 import { MintDetail } from '@/components/MintDetail';
 import { MiniGitDetail } from '@/components/MiniGitDetail';
 import { HanzawaKanjiDetail } from '@/components/HanzawaKanjiDetail';
+import { FroggerDetail } from '@/components/FroggerDetail';
 import { ActivitiesCarousel } from '@/components/ActivitiesCarousel';
 import { SocialLinks } from '@/components/layout/SocialLinks';
 import { PortfolioFooter } from '@/components/layout/PortfolioFooter';
@@ -100,6 +101,34 @@ const PROJECTS = [
       {
         label: '해결',
         content: 'Service Worker + IndexedDB 기반 오프라인 퍼스트 아키텍처',
+      },
+    ],
+  },
+  {
+    id: 'frogger',
+    title: 'Frogger',
+    oneliner:
+      'AI 알고리즘 시각화 디버거 — 컨텍스트 관리 & Claude 공통 사용법 담당',
+    period: '2026.04',
+    tags: ['Claude Code', 'CLAUDE.md', '슬래시 커맨드'],
+    accentColor: '#FED7AA',
+    isMain: false,
+    github: 'https://github.com/ultra-ai-dle/frogger',
+    link: undefined as string | undefined,
+    problemStatement:
+      'AI가 빠르게 코드를 쏟아내는 바이브코딩 환경에서, 팀 4인이 같은 Claude를 쓰며 계약(프롬프트 스키마·트레이스 병합·레이어 규칙)을 조용히 깨뜨리지 않고 공유하려면 어떤 구조가 필요한가.',
+    highlights: [
+      {
+        label: '핵심 과제',
+        content: 'AI 협업의 "컨텍스트 관리"를 파이프라인화',
+      },
+      {
+        label: '문제',
+        content: '훅으로 강제할 것과 커맨드로 유도할 것의 경계 설계',
+      },
+      {
+        label: '해결',
+        content: '계층형 CLAUDE.md + 8개 슬래시 커맨드로 계약을 정적 검증',
       },
     ],
   },
@@ -319,9 +348,7 @@ export default function Portfolio() {
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className={
-                  activeTab === 'Projects'
-                    ? 'p-4 sm:p-6 md:p-10 relative'
-                    : ''
+                  activeTab === 'Projects' ? 'p-4 sm:p-6 md:p-10 relative' : ''
                 }
                 style={
                   activeTab === 'About' || activeTab === 'Activities'
@@ -445,6 +472,8 @@ function ProjectsSection() {
         return <MiniGitDetail onBack={onBack} />;
       case 'hanzawa-kanji':
         return <HanzawaKanjiDetail onBack={onBack} />;
+      case 'frogger':
+        return <FroggerDetail onBack={onBack} />;
       default:
         return <ProjectDetail project={project} onBack={onBack} />;
     }
@@ -510,32 +539,38 @@ function ProjectsSection() {
 }
 
 function BentoGrid({ onSelect }: { onSelect: (p: Project) => void }) {
+  const byId = (id: string) => {
+    const project = PROJECTS.find((p) => p.id === id);
+    if (!project) {
+      throw new Error(`Project not found: ${id}`);
+    }
+    return project;
+  };
+
   return (
     <div className='grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[clamp(160px,28vw,200px)]'>
-      {/* Locus — mobile: 2 rows tall, tablet: full-width row, desktop: 2x2 */}
+      {/* Frogger — tablet: full-width, desktop: 2x2 featured */}
       <ProjectCard
-        project={PROJECTS[0]}
+        project={byId('frogger')}
         onSelect={onSelect}
-        className='row-span-2 sm:col-span-2 sm:row-span-1 lg:col-span-2 lg:row-span-2'
+        className='sm:col-span-2 lg:col-span-2 lg:row-span-2'
         isBig
       />
-      {/* Joka — implicit placement */}
-      <ProjectCard project={PROJECTS[1]} onSelect={onSelect} />
-      {/* mini-git — implicit placement */}
-      <ProjectCard project={PROJECTS[2]} onSelect={onSelect} />
-      {/* hanzawa-kanji — tablet/desktop: col-span-2 */}
+      {/* Joka — regular */}
+      <ProjectCard project={byId('joka')} onSelect={onSelect} />
+      {/* mini-git — regular */}
+      <ProjectCard project={byId('mini-git')} onSelect={onSelect} />
+      {/* Locus — tablet: full-width, desktop: 2x2 featured (paired with Frogger) */}
       <ProjectCard
-        project={PROJECTS[4]}
+        project={byId('locus')}
         onSelect={onSelect}
-        className='sm:col-span-2'
-        isWide
+        className='sm:col-span-2 lg:col-span-2 lg:row-span-2'
+        isBig
       />
-      {/* mint — tablet: full-width, desktop: single col */}
-      <ProjectCard
-        project={PROJECTS[3]}
-        onSelect={onSelect}
-        className='sm:col-span-2 lg:col-span-1'
-      />
+      {/* mint — regular */}
+      <ProjectCard project={byId('mint')} onSelect={onSelect} />
+      {/* hanzawa-kanji — regular */}
+      <ProjectCard project={byId('hanzawa-kanji')} onSelect={onSelect} />
     </div>
   );
 }
