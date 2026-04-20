@@ -1,3 +1,4 @@
+
 <div align="center">
 
 <img src="public/readme-banner.png" alt="mindaaaa.art 포트폴리오 배너" width="1000">
@@ -35,6 +36,12 @@
 - **About** — 패럴랙스 레이어로 흘러가는 자기소개. 3페이지 구성
 - **Projects** — 벤토그리드 기반의 프로젝트 전시. 카드 클릭 시 상세 페이지로 전환
 - **Activities** — 색상별로 겹쳐진 카드 스택. 각 활동에서의 배움과 인사이트
+
+<div align="center">
+  
+<img width="620" height="480" alt="minimal-mindaaaa" src="https://github.com/user-attachments/assets/49a83a79-b353-4f1b-b688-6be59c085895" />
+
+</div>
 
 ---
 
