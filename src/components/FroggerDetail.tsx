@@ -77,7 +77,10 @@ export function FroggerDetail({ onBack }: { onBack: () => void }) {
       heroVideo={{
         layout: "inline-landscape",
         projectName: "Frogger",
-        single: { src: "", caption: "코드 실행 → AI 분류·해설 → 단계별 시각화" },
+        single: {
+          src: "/videos/frogger/demo.webm",
+          srcFallback: "/videos/frogger/demo.mp4",
+        },
       }}
       onBack={onBack}
     >
