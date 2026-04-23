@@ -253,7 +253,10 @@ export function HanzawaKanjiDetail({ onBack }: { onBack: () => void }) {
       heroVideo={{
         layout: "inline-landscape",
         projectName: "hanzawa-kanji",
-        single: { src: "", caption: "학습 서비스 데모" },
+        single: {
+          src: "/videos/hanzawa-kanji/demo.webm",
+          srcFallback: "/videos/hanzawa-kanji/demo.mp4",
+        },
       }}
       onBack={onBack}
       accent="#f59e0b"

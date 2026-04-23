@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { HeroVideoLayout } from "./DetailContext";
 
@@ -118,6 +118,18 @@ function VideoPlayer({
   projectName: string;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  const [resolvedAspect, setResolvedAspect] = useState(aspectRatio);
+
+  useEffect(() => {
+    setResolvedAspect(aspectRatio);
+  }, [aspectRatio]);
+
+  const handleLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const v = e.currentTarget;
+    if (v.videoWidth > 0 && v.videoHeight > 0) {
+      setResolvedAspect(`${v.videoWidth} / ${v.videoHeight}`);
+    }
+  };
 
   if (prefersReducedMotion) {
     if (source.poster) {
@@ -141,7 +153,8 @@ function VideoPlayer({
       preload="metadata"
       poster={source.poster}
       aria-label={`${projectName} 데모 영상`}
-      style={{ width: "100%", aspectRatio, objectFit: "cover", display: "block" }}
+      onLoadedMetadata={handleLoadedMetadata}
+      style={{ width: "100%", aspectRatio: resolvedAspect, objectFit: "cover", display: "block" }}
     >
       <source src={source.src} type="video/webm" />
       {source.srcFallback && (
