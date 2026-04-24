@@ -289,7 +289,10 @@ export function MintDetail({ onBack }: { onBack: () => void }) {
       heroVideo={{
         layout: "inline-landscape",
         projectName: "mint",
-        single: { src: "", caption: "인터프리터 데모" },
+        single: {
+          src: "/videos/mint/demo.webm",
+          srcFallback: "/videos/mint/demo.mp4",
+        },
       }}
       onBack={onBack}
       accent="#a855f7"
