@@ -358,7 +358,10 @@ export function MiniGitDetail({ onBack }: { onBack: () => void }) {
       heroVideo={{
         layout: "inline-landscape",
         projectName: "mini-git",
-        single: { src: "", caption: "CLI 데모" },
+        single: {
+          src: "/videos/mini-git/demo.webm",
+          srcFallback: "/videos/mini-git/demo.mp4",
+        },
       }}
       onBack={onBack}
       accent="#10b981"
