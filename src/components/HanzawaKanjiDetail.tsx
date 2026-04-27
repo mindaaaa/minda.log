@@ -2,9 +2,17 @@ import React from "react";
 
 import { DetailLayout, DetailSection, SectionGap } from "@/components/detail/DetailLayout";
 import { Lead, H2, H3, BulletList, SectionDivider, Callout, Inline, DetailTable, CodeBlock } from "@/components/detail/DetailPrimitives";
-import { OptionCard, OptionCardGrid, StatCard, StatCardGrid, AchievementCard, AchievementGrid, LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
+import { StatCard, StatCardGrid, LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
 import { DetailActionButton, ActionRow } from "@/components/detail/DetailActionButton";
 import { useHeroLayout } from "@/components/detail/DetailContext";
+import { DiscoveryTimeline } from "@/components/detail/DiscoveryTimeline";
+import {
+  GroupBox,
+  ChosenCard, ChosenGrid,
+  ExcludedHeading, ExcludedRow,
+  DiscoveryBlock,
+} from "@/components/detail/IdeationVisuals";
+import { CategoryBlock, CategorySingle } from "@/components/detail/AchievementCategory";
 import { Github } from "lucide-react";
 import { DetailFurtherReading, FurtherReadingItem } from "@/components/detail/DetailFurtherReading";
 
@@ -268,20 +276,64 @@ export function HanzawaKanjiDetail({ onBack }: { onBack: () => void }) {
         <H2>학습 몰입을 끊는 두 가지 지점</H2>
 
         <Lead>
-          일본 상용한자 2,136자를 학습하는 서비스다. 데이터셋이 닫혀 있다는 특성 덕에
-          페이지네이션·Prefetch 전략을 주도적으로 선택할 수 있었고,
-          온보딩 이탈과 무한 퀴즈 몰입 저해라는 두 문제를 동시에 해결해야 했다.
+          닫힌 데이터셋(상용한자 2,136자)이 학습 도구에 본질적으로 유리한 점은 두 가지다 —
+          '학습 진도 = 본 문항 수 / 2,136'으로 진도가 명확히 정의되고, 서버가 데이터를 동적으로 생산할 필요가 없어 정적 앱 구조까지 갈 수 있다.
+          cursor·prefetch는 무한 모드 도메인 자체의 특성에서 나온 결정이지만, 닫힌 데이터셋이 모든 결정의 안정적 토대가 됐다.
         </Lead>
 
+        <DiscoveryTimeline
+          title="발견 순서 — 같은 한자 두 번 노출 사고에서 보충 주기 분리까지"
+          steps={[
+            {
+              num: "Step 1",
+              eyebrow: "첫 사고",
+              title: "스터디 → 랜덤 모드 전환에서 같은 한자가 두 번 노출됐다",
+              metas: [
+                { key: "수정", body: <>다음 리스트가 오면 새로 온 것만 랜덤 돌리도록 변경 — 이 경험으로 무한 모드 전체를 cursor 기반으로 처음부터 설계했다.</> },
+              ],
+            },
+            {
+              num: "Step 2",
+              eyebrow: "보기 풀",
+              title: "PoC 직접 학습 중 같은 오답이 자주 반복돼 학습 변별력이 떨어졌다",
+              metas: [
+                { key: "분리", body: <>보충 주기(<Inline>REPLENISH_INTERVAL = 50</Inline>)와 풀 크기(<Inline>INITIAL_SIZE = 200</Inline>)를 분리 — 보충은 학습 리듬에 맞추되, 풀 크기는 다양성 확보를 위해 더 크게.</> },
+              ],
+            },
+            {
+              num: "Step 3",
+              eyebrow: "확장",
+              title: "이 학습 도구의 데이터 규모 감각이 다음 결정에 적용됐다",
+              isFinal: true,
+              metas: [
+                { key: "이어짐", body: <>2,136건을 한 번에 다뤄도 부담 없다는 감각이 Locus 메모리 거버넌스(상한 1,000건) 결정의 직접 근거가 됐다.</> },
+              ],
+            },
+          ]}
+        />
+
+        <p
+          className="font-mono"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--doc-ink-4)",
+            margin: "28px 0 8px",
+          }}
+        >
+          학습 몰입을 끊는 두 지점
+        </p>
         <BulletList items={[
-          <><strong className="text-foreground">온보딩 이탈:</strong> 가입·동기화가 느리면 학습 시작 전 이탈이 발생한다. 접속 후 3초 이내 학습 진입을 목표로 삼았다.</>,
-          <><strong className="text-foreground">무한 퀴즈 몰입 저해:</strong> 무한 모드에서 문항 소진 때마다 로딩이 뜨면 집중이 끊긴다. 체감 지연 0ms를 목표로 했다.</>,
-          <><strong className="text-foreground">offset 페이지네이션 한계:</strong> RANDOM 모드에서 세션별 동일 순서가 요구되는데, offset 기반은 중간 삽입 시 페이지 경계가 흔들려 같은 항목이 중복 노출되거나 누락될 수 있다.</>,
-          <><strong className="text-foreground">보기(오답) 풀 고갈:</strong> 4지선다 오답 후보를 매 문항마다 API로 받으면 요청이 폭증하고, 장시간 학습 시 보기가 고갈된다.</>,
+          <><strong className="text-foreground">온보딩 이탈:</strong> 가입·동기화가 느리면 학습 시작 전 이탈이 발생한다. 접속 후 3초 이내 학습 진입을 목표로.</>,
+          <><strong className="text-foreground">무한 퀴즈 몰입 저해:</strong> 문항 소진 때마다 로딩이 뜨면 집중이 끊긴다. 체감 지연 0ms 목표.</>,
+          <><strong className="text-foreground">offset 한계:</strong> RANDOM 모드의 세션별 동일 순서 요구를 offset 기반은 중간 삽입 시 흔들린다.</>,
+          <><strong className="text-foreground">보기 풀 고갈:</strong> 4지선다 오답을 매 문항마다 API로 받으면 요청 폭증 + 장시간 학습 시 풀 고갈.</>,
         ]} />
 
         <Callout label="제약 조건">
-          상용한자는 약 <strong>2,136자</strong>로 데이터셋이 닫혀 있다. 전체 크기를 알 수 있으므로 인메모리·Prefetch 전략을 충분히 활용할 수 있다.
+          상용한자는 약 <strong>2,136자</strong>로 데이터셋이 닫혀 있다 — 전체 크기를 알 수 있으므로 인메모리·Prefetch 전략을 충분히 활용할 수 있다.
         </Callout>
       </DetailSection>
 
@@ -297,17 +349,49 @@ export function HanzawaKanjiDetail({ onBack }: { onBack: () => void }) {
           커서 기반 페이지네이션과 잔여 N개 이하 Prefetch를 조합하는 방향을 선택했다.
         </Lead>
 
-        <OptionCardGrid>
-          <OptionCard letter="A" title="offset 기반 페이지" pros="단순" cons="데이터 변경 시 페이지 일관성 붕괴" />
-          <OptionCard letter="B" title="커서(다음 시작 id) + limit+1 조회" pros="순서 안정, hasMore 판단 쉬움" cons="API·클라 계약을 명확히 문서화해야 함" chosen />
-          <OptionCard letter="C" title="문제 소진 때마다만 fetch" pros="구현 단순" cons="네트워크 라운드트립이 UX를 자름" />
-          <OptionCard letter="D" title="잔여 N문항 이하에서 prefetch" pros="체감 0에 가깝게 유지" cons="중복 제거·커서 상태 관리 필요" chosen />
-        </OptionCardGrid>
+        <GroupBox>
+          <ChosenGrid cols={2}>
+            <ChosenCard
+              letter="B"
+              title="커서(다음 시작 id) + limit+1 조회"
+              pros="순서 안정, hasMore 판단 쉬움"
+              cons="API·클라 계약을 명확히 문서화해야 함"
+            />
+            <ChosenCard
+              letter="D"
+              title="잔여 N문항 이하에서 prefetch"
+              pros="체감 0에 가깝게 유지"
+              cons="중복 제거·커서 상태 관리 필요"
+            />
+          </ChosenGrid>
 
-        <Callout>
-          <strong>선택: B + D</strong> — 커서 기반으로 순서 안정성을 확보하고, 잔여 5문항 이하 시점에 다음 묶음을 미리 가져와 체감 지연을 제거한다.
-          서버에서 quizId 시드로 셔플 순서를 고정해 세션별 일관성을 보장한다.
-        </Callout>
+          <ExcludedHeading />
+          <ExcludedRow letter="A" title="offset 기반 페이지" cons="데이터 변경 시 페이지 일관성 붕괴" />
+          <ExcludedRow letter="C" title="문제 소진 때마다만 fetch" cons="네트워크 라운드트립이 UX를 자름" />
+
+          <DiscoveryBlock>
+            무한 모드가 누적 컨텍스트 모델이라 '마지막으로 본 id 다음부터'라는 cursor 계약이 본질에 정합 — offset은 한 번도 시도하지 않았다.
+            C는 정답 검증 동작을 확인하려 빠르게 넘기다 매 문항 API 호출이 따라붙는 걸 발견하고, '네트워크가 끊기면 흐름이 그대로 끊긴다'는 위험이 더 커서 prefetch로 전환했다.
+            <Inline>REPLENISH_INTERVAL = 50</Inline>은 타깃 시나리오 '아침 출근길 버스 1시간 = 30~50문항'과 같은 리듬으로 잡아, 한 세션 끝날 무렵 자연스럽게 보충되는 흐름.
+          </DiscoveryBlock>
+        </GroupBox>
+
+        <p style={{ fontSize: 14, color: "var(--doc-ink-2)", lineHeight: 1.7, margin: "20px 0 0" }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--doc-accent)",
+              marginRight: 12,
+            }}
+          >
+            결정
+          </span>
+          B + D 조합 — 커서로 순서 안정성, 잔여 5문항 prefetch로 체감 지연 제거. 서버는 quizId 시드 셔플로 세션 일관성을 보장한다.
+        </p>
       </DetailSection>
       </SectionGap>
 
@@ -420,12 +504,27 @@ useEffect(() => {
         </StatCardGrid>
 
         <H3>정성적 성과</H3>
-        <AchievementGrid>
-          <AchievementCard title="온보딩 간소화" description="가입 없이 세션 시작 — 접속 후 즉시 학습 가능한 흐름." />
-          <AchievementCard title="수백 문항 연속 학습" description="잔여 5문항 Prefetch와 보기 풀 보충이 조합되어 장시간 세션에서도 끊김 없는 경험 제공." />
-          <AchievementCard title="전략 레퍼런스 축적" description={<>"데이터 규모에 따라 인메모리·Prefetch 전략이 달라진다"는 의사결정 경험이 이후 프로젝트(Locus 메모리 거버넌스 등)의 레퍼런스가 됐다.</>} />
-          <AchievementCard title="풀스택 경험" description="Kotlin/Spring Boot 서버와 React 클라이언트를 함께 설계해, API 계약이 UX에 직접 영향을 준다는 점을 체득." />
-        </AchievementGrid>
+
+        <CategoryBlock num="01" name="사용자 체감" sub="본인이 직접 학습 도구를 사용하며 확인">
+          <CategorySingle
+            title="prefetch 도입 후 무한 모드에서 끊김 없이 학습이 이어졌다"
+            body={<>본인이 막 클릭하며 테스트하다 매 클릭마다 API 호출이 따라붙는 버벅임을 발견했고, 보기 풀 + prefetch 도입 후 와이파이 약한 환경에서도 같은 패턴의 끊김이 사라졌다.</>}
+          />
+        </CategoryBlock>
+
+        <CategoryBlock num="02" name="1년 후 회고" sub="2026.04 UI 리디자인">
+          <CategorySingle
+            title="코드보다 사용성이 가장 약했다 — 디자인 시스템 + PWA 정적 앱으로 발전"
+            body={<>2,136자 전체를 FE가 직접 들고 있어도 부담 없는 규모라, PWA 정적 앱으로 옮기면 오프라인·모바일 사용성을 동시에 풀 수 있다고 판단. 현재 Installable PWA까지 적용, Service Worker 오프라인 캐싱은 다음 단계.</>}
+          />
+        </CategoryBlock>
+
+        <CategoryBlock num="03" name="학습 사이클" sub="Locus 메모리 거버넌스 결정으로 이어진 감각">
+          <CategorySingle
+            title="2,136건을 한 번에 다뤄도 부담 없다는 감각이 Locus 1,000건 결정의 직접 근거"
+            body={<>코드 이식이 아니라 데이터 규모 감각의 이식 — 현대 하드웨어에서 1,000건 메모리·렌더링 부담이 거의 없다는 확신을 hanzawa 실험에서 얻었다.</>}
+          />
+        </CategoryBlock>
 
         <H3>정직한 한계</H3>
         <LimitationGrid>

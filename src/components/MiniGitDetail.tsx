@@ -2,9 +2,18 @@ import React from "react";
 
 import { DetailLayout, DetailSection, SectionGap } from "@/components/detail/DetailLayout";
 import { Lead, H2, H3, BulletList, SectionDivider, Callout, Inline, DetailTable, CodeBlock } from "@/components/detail/DetailPrimitives";
-import { OptionCard, OptionCardGrid, AchievementCard, AchievementGrid, LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
+import { LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
 import { DetailActionButton, ActionRow } from "@/components/detail/DetailActionButton";
 import { useHeroLayout } from "@/components/detail/DetailContext";
+import { DiscoveryTimeline } from "@/components/detail/DiscoveryTimeline";
+import {
+  GroupBox,
+  ChosenCard,
+  ExcludedHeading, ExcludedRow,
+  DiscoveryBlock,
+  SplitLayout,
+} from "@/components/detail/IdeationVisuals";
+import { CategoryBlock, CategorySingle } from "@/components/detail/AchievementCategory";
 import { Github, BookOpen } from "lucide-react";
 import { DetailFurtherReading, FurtherReadingItem } from "@/components/detail/DetailFurtherReading";
 
@@ -374,20 +383,63 @@ export function MiniGitDetail({ onBack }: { onBack: () => void }) {
 
         <Lead>
           Git은 겉으로는 버전 관리 도구지만, 내부는 <strong>콘텐츠 주소 지정 저장소(content-addressable store)</strong>다.
-          문서만 읽으면 "커밋 = 변경 요약"으로 오해하기 쉬운데, 실제로 커밋 객체는
-          루트 tree 해시와 parent 커밋 해시를 담은 포인터다. mini-git은 이 세 층을
-          최소 형태로 직접 구현해 원리를 체득하기 위한 프로젝트다.
+          문서만 읽으면 "커밋 = 변경 요약"으로 오해하기 쉬운데, 실제 커밋 객체는 루트 tree 해시와 parent 커밋 해시를 담은 포인터다.
+          mini-git은 이 세 층(객체 / ref / index)을 최소 형태로 직접 구현해 <strong className="text-foreground">'불변 객체 + 가변 포인터'</strong> 분리를 체득하기 위한 프로젝트다.
         </Lead>
 
+        <DiscoveryTimeline
+          title="발견 순서 — 폴더 구조 오해에서 학습 경계까지"
+          steps={[
+            {
+              num: "Step 1",
+              eyebrow: "가장 큰 오해",
+              title: "git이 폴더 구조를 계층적으로 저장한다고 막연히 추정했다",
+              metas: [
+                { key: "발견", body: <>실제로는 모든 게 해시로 평면 저장되고, tree 객체가 디렉터리 구조의 '의미'만 담는다 — 폴더 안에 폴더가 복제되거나 diff로 저장되는 게 아니다.</> },
+              ],
+            },
+            {
+              num: "Step 2",
+              eyebrow: "풀린 미스터리",
+              title: "commit 객체 안의 parent 해시 한 줄로 조상·브랜치가 끝난다",
+              metas: [
+                { key: "인상", body: <>단순한 개념으로 이렇게 강력한 동작이 만들어진다는 게 인상적이었다.</> },
+              ],
+            },
+            {
+              num: "Step 3",
+              eyebrow: "학습 경계",
+              title: "머지까지 가려다 'blob/tree/commit으로 충분'이 명확해졌다",
+              isFinal: true,
+              metas: [
+                { key: "이어짐", body: <>이 '불변 객체 + 가변 포인터' 패턴이 다음 프로젝트(Joka의 append-only 로그 + beforeSend 가변 해석)에서 비슷한 형태로 다시 나타났다 — 일반화 가능한 패턴인지는 더 학습 필요.</> },
+              ],
+            },
+          ]}
+        />
+
+        <p
+          className="font-mono"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--doc-ink-4)",
+            margin: "28px 0 8px",
+          }}
+        >
+          학습 범위 결정 4축
+        </p>
         <BulletList items={[
-          <><strong className="text-foreground">CLI 구조:</strong> 명령이 늘수록 진입점 <Inline>if/else</Inline>가 비대해지면 개방-폐쇄 원칙(OCP)이 깨지고 리그레션 범위가 불투명해진다.</>,
-          <><strong className="text-foreground">모델 오해:</strong> "커밋 = 변경 요약"으로 오해하기 쉽지만, 실제로는 루트 tree 해시 + parent 커밋 해시가 커밋 객체에 들어간다. 파일 이름·권한 모드는 tree 엔트리에만 존재한다.</>,
-          <><strong className="text-foreground">데이터 무결성:</strong> 워킹 디렉터리 파일은 언제든 망가질 수 있다. 객체 저장소를 append-only로 두고 상태 전이를 "새 객체 + ref 이동"으로만 표현하면 역사가 불변 체인으로 남는다.</>,
-          <><strong className="text-foreground">학습 범위:</strong> packfile, merge, index v2 바이너리 등은 의도적으로 생략하고, loose object + zlib 수준에서 원리를 담보한다.</>,
+          <><strong className="text-foreground">CLI 구조:</strong> 명령이 늘수록 진입점 <Inline>if/else</Inline>가 비대해지면 OCP가 깨진다 — 전략 맵으로 진입점 고정.</>,
+          <><strong className="text-foreground">모델 오해:</strong> "커밋 = 변경 요약"으로 오해하기 쉽지만, 실제로는 루트 tree 해시 + parent 해시가 커밋에 들어간다.</>,
+          <><strong className="text-foreground">데이터 무결성:</strong> 객체 저장소를 append-only로 두고 상태 전이를 "새 객체 + ref 이동"으로만 표현하면 역사가 불변 체인으로 남는다.</>,
+          <><strong className="text-foreground">학습 범위:</strong> packfile, merge, index v2 바이너리는 의도적으로 생략 — loose object + zlib 수준에서 원리를 담보.</>,
         ]} />
 
         <Callout label="핵심 질문">
-          <strong>Git의 세 층 — 콘텐츠 주소 저장소(객체), 가변 포인터(ref), 스테이징 영역(index) — 을 최소한의 코드로 직접 구현해 "무엇이 불변이고 무엇이 가변인지"를 체득할 수 있는가?</strong>
+          <strong>Git의 세 층(객체·ref·index)을 최소한의 코드로 직접 구현해 "무엇이 불변이고 무엇이 가변인지"를 체득할 수 있는가?</strong>
         </Callout>
       </DetailSection>
 
@@ -404,24 +456,88 @@ export function MiniGitDetail({ onBack }: { onBack: () => void }) {
         </Lead>
 
         <H3>① 명령 디스패치 전략</H3>
-        <OptionCardGrid>
-          <OptionCard letter="A" title="거대 switch/if" pros="빠른 PoC" cons="확장·테스트·코드 리뷰 비용 — OCP 위반" />
-          <OptionCard letter="B" title="전략 맵 + run(args, gitDir)" pros="명령별 모듈 분리, 진입점 단일화" cons="맵 등록 누락 시 런타임 에러 (규약·리뷰로 보완)" chosen />
-          <OptionCard letter="C" title="플러그인 로더" pros="확장성 극대" cons="학습·디버깅 난이도 상승" />
-        </OptionCardGrid>
-        <Callout>
-          <strong>선택: B</strong> — 전략 맵(<Inline>CommandStrategy</Inline>)으로 진입점을 고정하고, 새 명령은 맵에 항목만 추가한다. 맵 등록 누락은 가드 분기로 조기 종료해 보완한다.
-        </Callout>
+        <GroupBox>
+          <SplitLayout
+            chosen={
+              <ChosenCard
+                letter="B"
+                title="전략 맵 + run(args, gitDir)"
+                pros="명령별 모듈 분리, 진입점 단일화"
+                cons="맵 등록 누락 시 런타임 에러 (규약·리뷰로 보완)"
+              />
+            }
+            excluded={
+              <>
+                <ExcludedHeading noTopMargin />
+                <ExcludedRow letter="A" title="거대 switch/if" cons="OCP 위반" stacked />
+                <ExcludedRow letter="C" title="플러그인 로더" cons="학습·디버깅 난이도 상승" stacked />
+                <DiscoveryBlock>
+                  플러그인 로더(C)는 진지하게 검토한 적이 없다 — 1인 학습 프로젝트라 외부 확장 시나리오 자체가 없었고, 본문엔 디스패치 패턴 비교의 완결성을 위해 일반론으로 함께 나열했다.
+                  학습 목적상 '어떤 명령이 등록됐는지 코드에 정적으로 보이는' 전략 맵 방식이 자연스러운 선택이었다.
+                </DiscoveryBlock>
+              </>
+            }
+          />
+        </GroupBox>
+
+        <p style={{ fontSize: 14, color: "var(--doc-ink-2)", lineHeight: 1.7, margin: "20px 0 0" }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--doc-accent)",
+              marginRight: 12,
+            }}
+          >
+            결정
+          </span>
+          B 채택 — 전략 맵(<Inline>CommandStrategy</Inline>)으로 진입점을 고정, 새 명령은 맵 항목 추가만으로. 등록 누락은 가드 분기로 조기 종료.
+        </p>
 
         <H3>② 저장소 표현 방식 (진짜 Git과의 거리)</H3>
-        <OptionCardGrid>
-          <OptionCard letter="A" title="파일 복사 스냅샷만" pros="직관적" cons="중복 저장, dedup·무결성 검증 어려움" />
-          <OptionCard letter="B" title="loose object + type size\0 헤더 + SHA-1 + zlib" pros="동일 내용 = 동일 해시(중복 방지), cat-file 사고방식 그대로" cons="packfile 압축·GC는 미구현" chosen />
-          <OptionCard letter="C" title="실제 Git index 바이너리" pros="완전 호환" cons="파싱/직렬화 부담으로 학습 목적 흐려짐" />
-        </OptionCardGrid>
-        <Callout>
-          <strong>선택: B</strong> + 스테이징은 JSON index로 단순화 — "스테이징이 별도 레이어라는 사실"만 유지. 실제 Git index 바이너리 포맷 구현은 학습 핵심을 흐리므로 생략했다.
-        </Callout>
+        <GroupBox>
+          <SplitLayout
+            chosen={
+              <ChosenCard
+                letter="B"
+                title="loose object + 'type size\\0' 헤더 + SHA-1 + zlib"
+                pros="동일 내용 = 동일 해시(중복 방지), cat-file 사고방식 그대로"
+                cons="packfile 압축·GC는 미구현"
+              />
+            }
+            excluded={
+              <>
+                <ExcludedHeading noTopMargin />
+                <ExcludedRow letter="A" title="파일 복사 스냅샷만" cons="중복 저장, dedup·무결성 어려움" stacked />
+                <ExcludedRow letter="C" title="실제 Git index 바이너리" cons="학습 목적 흐려짐" stacked />
+                <DiscoveryBlock>
+                  학습 도구의 핵심 가치는 '내부 동작을 눈으로 확인할 수 있는 것'인데, index v2 같은 바이너리 포맷은 IDE에서 열어도 의미가 보이지 않는다 → 동작 의미(스테이징이 별도 레이어다)는 유지하되 저장 형태는 JSON으로 단순화.
+                  학습 경계의 기준은 '객체가 어떻게 움직이는지를 직접 추적할 수 있는가'로, packfile · merge · index v2는 그 다음 영역(성능 / 병합 / 포맷 최적화)이라 의도적으로 경계 밖에 두었다.
+                </DiscoveryBlock>
+              </>
+            }
+          />
+        </GroupBox>
+
+        <p style={{ fontSize: 14, color: "var(--doc-ink-2)", lineHeight: 1.7, margin: "20px 0 0" }}>
+          <span
+            className="font-mono"
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--doc-accent)",
+              marginRight: 12,
+            }}
+          >
+            결정
+          </span>
+          B 채택 + 스테이징은 JSON index로 단순화 — '스테이징이 별도 레이어'라는 사실만 유지하고, 바이너리 포맷 구현은 학습 핵심을 흐리므로 생략했다.
+        </p>
       </DetailSection>
       </SectionGap>
 
@@ -562,12 +678,34 @@ fs.writeFileSync(branchPath, commitHash); // ref만 이동 — 기존 객체 불
         ]} />
 
         <H3>체득한 것</H3>
-        <AchievementGrid>
-          <AchievementCard title="blob에 경로 없음" description="파일 이름은 tree 엔트리에만 존재한다. 같은 내용의 파일은 어느 디렉터리에 있더라도 동일한 blob 해시를 가진다." />
-          <AchievementCard title="커밋 = 스냅샷 포인터" description={<>커밋 객체는 diff가 아닌 루트 tree 해시를 담는다. "변경 이력"처럼 보이는 것은 parent 체인 순회로 파생된다.</>} />
-          <AchievementCard title="불변 객체 + 가변 포인터" description="객체는 한 번 쓰면 덮어쓰지 않는다. 브랜치 파일(ref)만 새 commit 해시로 교체된다." />
-          <AchievementCard title="중복 억제" description="동일 내용 재-add는 동일 blob 해시 → 추가 저장 없이 index만 갱신된다. O(1) dedup이 구조에서 자연스럽게 발생한다." />
-        </AchievementGrid>
+
+        <CategoryBlock num="01" name="사용자 체감 (본인 변화)" sub="git에 대한 두려움 → 도구에 대한 신뢰">
+          <CategorySingle
+            title="구현 후 reset/rebase를 자유롭게 쓰게 됐다"
+            body={<>'한 번 만들어진 해시는 사라지지 않으니 뭘 잘못해도 ref만 되돌리면 살릴 수 있다'는 걸 직접 체득하면서, Git에 대한 막연한 공포가 도구에 대한 신뢰로 바뀌었다.</>}
+          />
+        </CategoryBlock>
+
+        <CategoryBlock num="02" name="도구 가치 정직 평가" sub="web playground는 시연용에 가깝다">
+          <CategorySingle
+            title="누군가 이 도구로 본격적으로 학습하는 걸 본 적은 없다"
+            body={<>지원 명령어가 init / add / commit / branch / checkout / log 수준이라 학습 도구로 쓰기엔 부족 — 현재는 동작을 시각적으로 확인하는 시연용. 명령어 범위 확장은 다음 단계로 두고 있다.</>}
+          />
+        </CategoryBlock>
+
+        <CategoryBlock num="03" name="설계 트레이드오프" sub="실무 최적화 vs 학습 용이성">
+          <CategorySingle
+            title="모든 단순화 결정의 일관된 기준 — 흐름 이해 우선"
+            body={<>실제 Git의 성능 최적화(packfile, index v2 바이너리)를 그대로 옮기면 학습 가치가 사라지기 때문에, 동작 의미는 유지하되 저장 형태는 JSON으로 단순화했다.</>}
+          />
+        </CategoryBlock>
+
+        <CategoryBlock num="04" name="학습 사이클" sub="학습 경계를 의식적으로 그은 결정">
+          <CategorySingle
+            title="commit까지 구현해보니 '객체가 어떻게 움직이는지'엔 충분 — 머지·packfile은 다음 학습 주제로"
+            body={<>처음엔 머지까지 가볼 생각으로 시작했는데, '두 parent + 충돌 해결'은 객체 움직임이 아니라 '병합 알고리즘'이라는 별도 주제라 의식적으로 경계 밖에 뒀다.</>}
+          />
+        </CategoryBlock>
 
         <H3>정직한 한계</H3>
         <LimitationGrid>
