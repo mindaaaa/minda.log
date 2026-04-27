@@ -17,10 +17,6 @@ import {
   CodeBlock,
 } from '@/components/detail/DetailPrimitives';
 import {
-  OptionCard,
-  OptionCardGrid,
-  AchievementCard,
-  AchievementGrid,
   LimitationCard,
   LimitationGrid,
   StackChip,
@@ -32,6 +28,19 @@ import {
   ActionRow,
 } from '@/components/detail/DetailActionButton';
 import { useHeroLayout } from '@/components/detail/DetailContext';
+import { DiscoveryTimeline } from '@/components/detail/DiscoveryTimeline';
+import {
+  GroupBox,
+  ChosenCard,
+  ChosenGrid,
+  ExcludedHeading,
+  ExcludedRow,
+  DiscoveryBlock,
+} from '@/components/detail/IdeationVisuals';
+import {
+  CategoryBlock,
+  CategorySingle,
+} from '@/components/detail/AchievementCategory';
 import { Github, BookOpen } from 'lucide-react';
 import {
   DetailFurtherReading,
@@ -88,58 +97,107 @@ const DIAGRAM_INNER_BORDER = 'rgba(155, 142, 196, 0.25)';
 
 // ─── Architecture Diagrams ─────────────────────────────────────────────────────
 
+interface DataNodeProps {
+  label: string;
+  type: string;
+  isFinal?: boolean;
+}
+
+function PipelineDataNode({ label, type, isFinal = false }: DataNodeProps) {
+  const bg = isFinal ? 'rgba(16,185,129,0.08)' : '#fff';
+  const border = isFinal ? 'rgba(16,185,129,0.3)' : DIAGRAM_INNER_BORDER;
+  const labelColor = isFinal ? '#059669' : '#1a1a2e';
+  return (
+    <div
+      style={{
+        background: bg,
+        border: `1px solid ${border}`,
+        borderRadius: 10,
+        padding: '12px 18px',
+        textAlign: 'center',
+        minWidth: 200,
+      }}
+    >
+      <div
+        style={{
+          fontSize: '0.95rem',
+          fontWeight: 700,
+          color: labelColor,
+          letterSpacing: '-0.02em',
+        }}
+      >
+        {label}
+      </div>
+      <code
+        style={{
+          fontFamily: 'monospace',
+          fontSize: '0.72rem',
+          color: 'rgba(0,0,0,0.5)',
+          marginTop: 2,
+          display: 'block',
+        }}
+      >
+        {type}
+      </code>
+    </div>
+  );
+}
+
+function PipelineFnArrow({ label, sub }: { label: string; sub: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '6px 0 6px 12px',
+        margin: '2px 0',
+      }}
+    >
+      <svg width='14' height='28' viewBox='0 0 14 28' fill='none' style={{ flexShrink: 0 }}>
+        <path
+          d='M7 0v22M2 17l5 5 5-5'
+          stroke='rgba(155,142,196,0.55)'
+          strokeWidth='1.8'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+        />
+      </svg>
+      <div>
+        <code
+          style={{
+            fontFamily: 'monospace',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            color: DIAGRAM_ACCENT_DARK,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {label}
+        </code>
+        <div
+          style={{
+            fontSize: '0.66rem',
+            color: 'rgba(0,0,0,0.4)',
+            marginTop: 1,
+            fontFamily: 'monospace',
+          }}
+        >
+          {sub}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PipelineDiagram() {
-  const stages = [
-    {
-      label: 'source',
-      sublabel: 'string',
-      color: 'rgba(155,142,196,0.08)',
-      border: DIAGRAM_INNER_BORDER,
-    },
-    {
-      label: 'tokenize',
-      sublabel: 'Lexer',
-      color: 'rgba(155,142,196,0.14)',
-      border: 'rgba(155,142,196,0.35)',
-    },
-    {
-      label: 'tokens',
-      sublabel: 'Token[]',
-      color: 'rgba(155,142,196,0.08)',
-      border: DIAGRAM_INNER_BORDER,
-    },
-    {
-      label: 'parse',
-      sublabel: 'Parser',
-      color: 'rgba(155,142,196,0.14)',
-      border: 'rgba(155,142,196,0.35)',
-    },
-    {
-      label: 'program',
-      sublabel: 'AST',
-      color: 'rgba(155,142,196,0.08)',
-      border: DIAGRAM_INNER_BORDER,
-    },
-    {
-      label: 'evaluate',
-      sublabel: 'Evaluator',
-      color: 'rgba(155,142,196,0.14)',
-      border: 'rgba(155,142,196,0.35)',
-    },
-    {
-      label: 'RunResult',
-      sublabel: 'ok / error',
-      color: 'rgba(16,185,129,0.08)',
-      border: 'rgba(16,185,129,0.25)',
-    },
-  ];
   return (
     <div
       style={{
         borderRadius: '14px',
         border: `1px solid ${DIAGRAM_BORDER}`,
         background: DIAGRAM_BG,
-        padding: '20px 24px',
+        padding: '24px 24px 20px',
         marginBottom: '1.75rem',
       }}
     >
@@ -155,94 +213,40 @@ function PipelineDiagram() {
       >
         아키텍처 — 파이프라인 흐름
       </p>
+
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '4px',
+          gap: 0,
         }}
       >
-        {stages.map((s, i) => (
-          <React.Fragment key={s.label}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-            >
-              <div
-                style={{
-                  background: s.color,
-                  border: `1px solid ${s.border}`,
-                  borderRadius: '10px',
-                  padding: '9px 14px',
-                  textAlign: 'center',
-                  minWidth: '72px',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '0.88rem',
-                    fontWeight: 700,
-                    color: '#1a1a2e',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  {s.label}
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.64rem',
-                    color: 'rgba(0,0,0,0.4)',
-                    marginTop: '2px',
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  {s.sublabel}
-                </div>
-              </div>
-            </div>
-            {i < stages.length - 1 && (
-              <svg
-                width='18'
-                height='12'
-                viewBox='0 0 18 12'
-                fill='none'
-                style={{ flexShrink: 0 }}
-              >
-                <path
-                  d='M0 6h14M8 1l6 5-6 5'
-                  stroke='rgba(155,142,196,0.45)'
-                  strokeWidth='1.8'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                />
-              </svg>
-            )}
-          </React.Fragment>
-        ))}
+        <PipelineDataNode label='source' type='string' />
+        <PipelineFnArrow label='tokenize()' sub='Lexer' />
+        <PipelineDataNode label='tokens' type='Token[]' />
+        <PipelineFnArrow label='parse()' sub='Parser' />
+        <PipelineDataNode label='program' type='AST' />
+        <PipelineFnArrow label='evaluate()' sub='Evaluator + stdout 콜백' />
+        <PipelineDataNode label='RunResult' type='ok | error' isFinal />
       </div>
+
       <div
         style={{
-          marginTop: '14px',
+          marginTop: 18,
+          paddingTop: 14,
           borderTop: `1px solid ${DIAGRAM_BORDER}`,
-          paddingTop: '12px',
-          display: 'flex',
-          gap: '10px',
-          flexWrap: 'wrap',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 10,
         }}
       >
         <div
           style={{
-            flex: 1,
             background: '#fff',
             border: '1px solid rgba(0,0,0,0.08)',
-            borderRadius: '8px',
-            padding: '9px 14px',
-            minWidth: '140px',
+            borderRadius: 8,
+            padding: '10px 14px',
           }}
         >
           <p
@@ -250,7 +254,7 @@ function PipelineDiagram() {
               fontSize: '0.68rem',
               fontWeight: 700,
               color: DIAGRAM_ACCENT_DARK,
-              marginBottom: '4px',
+              marginBottom: 4,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
             }}
@@ -272,12 +276,10 @@ function PipelineDiagram() {
         </div>
         <div
           style={{
-            flex: 1,
             background: '#fff',
             border: '1px solid rgba(0,0,0,0.08)',
-            borderRadius: '8px',
-            padding: '9px 14px',
-            minWidth: '140px',
+            borderRadius: 8,
+            padding: '10px 14px',
           }}
         >
           <p
@@ -285,7 +287,7 @@ function PipelineDiagram() {
               fontSize: '0.68rem',
               fontWeight: 700,
               color: '#ef4444',
-              marginBottom: '4px',
+              marginBottom: 4,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
             }}
@@ -831,43 +833,65 @@ export function MintDetail({ onBack }: { onBack: () => void }) {
         <H2>코어와 I/O가 섞이면 이식성과 테스트가 동시에 무너진다</H2>
 
         <Lead>
-          mint는 동일한 언어를 CLI(파일·stdio)와 웹 터미널 UI에서 실행하는
-          인터프리터다. 두 환경의 I/O API가 다르기 때문에, 평가기 안에서 환경을
-          직접 참조하면 분기가 늘어나고 이식성이 떨어지는 문제가 생긴다.
+          언어 인터프리터의 본질은 '같은 코드 → 같은 결과'라는 단일 매핑이고, 그 매핑은 호스트(CLI / 웹 / 테스트)에 영향받지 않아야 한다.
+          평가기 안에 환경 API가 섞이는 순간 매핑이 호스트에 종속되고, 같은 언어가 호스트마다 다르게 동작하는 모순이 생긴다 —
+          <strong className='text-foreground'> 코어는 그대로 유지하고 호스트마다 '문만 새로 파주는'</strong> 구조가 본질에 정합한다고 봤다.
         </Lead>
 
+        <DiscoveryTimeline
+          title='발견 순서 — CLI에서 시작했지만 처음부터 호스트 분리'
+          steps={[
+            {
+              num: 'Step 1',
+              eyebrow: '시작점',
+              title: "CLI 단계부터 'Web 호스트 추가 가능성'을 가정한 설계",
+              metas: [
+                { key: '맥락', body: <>아키텍처 책에서 'infra와 core 분리'를 학습한 직후라, 평가기 코어는 stdout을 콜백으로 주입받고, CLI 호스트가 <Inline>process.stdout</Inline>을 콜백에 넘기는 구조로 시작했다.</> },
+              ],
+            },
+            {
+              num: 'Step 2',
+              eyebrow: 'Web 추가 동기',
+              title: '분리 필요성이 아니라 진입 장벽 때문',
+              metas: [
+                { key: '결정', body: <>'남이 내 프로젝트를 보려면 clone하고 세팅까지 해야 한다'는 진입 장벽 → Vercel 배포 + 예제 갤러리로 별도 설치 없이 체험 가능하게.</> },
+              ],
+            },
+            {
+              num: 'Step 3',
+              eyebrow: '검증',
+              title: 'Web 호스트 추가는 어댑터 작성만으로 끝났다',
+              isFinal: true,
+              metas: [
+                { key: '결과', body: <>환경 분리가 처음부터 돼 있었기 때문에, 호스트가 늘어서 코어를 손볼 일이 생긴 적은 0건이었다.</> },
+              ],
+            },
+          ]}
+        />
+
+        <p
+          className='font-mono'
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--doc-ink-4)',
+            margin: '28px 0 8px',
+          }}
+        >
+          코어와 I/O가 섞일 때의 결과
+        </p>
         <BulletList
           items={[
-            <>
-              <strong className='text-foreground'>현상:</strong> 동일 언어를
-              CLI와 웹에서 실행하려다 보면 코어와 I/O가 섞여 분기가 늘어난다.
-            </>,
-            <>
-              <strong className='text-foreground'>원인 — 환경 API 오염:</strong>{' '}
-              평가기 안에 <Inline>process.stdout</Inline>이나{' '}
-              <Inline>window</Inline> 같은 호스트 API가 스며들면 다른 환경으로
-              이식할 수 없다.
-            </>,
-            <>
-              <strong className='text-foreground'>테스트 어려움:</strong> 환경
-              API를 직접 호출하면 순수 함수처럼 검증하기 어렵고 목(mock) 처리가
-              복잡해진다.
-            </>,
-            <>
-              <strong className='text-foreground'>
-                출력·에러 표현 불일치:
-              </strong>{' '}
-              CLI는 ANSI 컬러링, 웹은 DOM 하이라이트 — 플랫폼마다 에러 처리
-              코드가 달라진다.
-            </>,
+            <><strong className='text-foreground'>환경 API 오염:</strong> 평가기 안에 <Inline>process.stdout</Inline>이나 <Inline>window</Inline> 같은 호스트 API가 스며들면 다른 환경으로 이식할 수 없다.</>,
+            <><strong className='text-foreground'>테스트 어려움:</strong> 환경 API를 직접 호출하면 순수 함수처럼 검증하기 어렵고 목(mock) 처리가 복잡해진다.</>,
+            <><strong className='text-foreground'>출력·에러 표현 불일치:</strong> CLI는 ANSI 컬러링, 웹은 DOM 하이라이트 — 플랫폼마다 에러 처리 코드가 달라진다.</>,
           ]}
         />
 
         <Callout label='핵심 질문'>
-          <strong>
-            평가기 코어를 환경 독립적으로 유지하면서, 각 호스트(CLI·웹·테스트)가
-            출력과 에러를 다르게 처리할 수 있는 구조를 어떻게 만들 것인가?
-          </strong>
+          <strong>평가기 코어를 환경 독립적으로 유지하면서, 각 호스트가 출력과 에러를 다르게 처리할 수 있는 구조를 어떻게 만들 것인가?</strong>
         </Callout>
       </DetailSection>
 
@@ -883,41 +907,111 @@ export function MintDetail({ onBack }: { onBack: () => void }) {
             조합을 결정했다.
           </Lead>
 
-          <OptionCardGrid>
-            <OptionCard
-              letter='A'
-              title='CLI용/Web용 평가기 복제'
-              pros='각각 최적 UI 가능'
-              cons='로직 드리프트, 버그 2배 — 유지 불가'
-            />
-            <OptionCard
-              letter='B'
-              title='단일 runSource + Lexer→Parser→Evaluator 파이프라인'
-              pros='단일 진실 공급원 — 코어 100% 재사용'
-              cons='경계 설계·에러 스키마 필요'
-              chosen
-            />
-            <OptionCard
-              letter='C'
-              title='Core가 console.log 직접 호출'
-              pros='디버깅 편할 수 있음'
-              cons='호스트 교체·테스트 어려움'
-            />
-            <OptionCard
-              letter='D'
-              title='stdout 등을 옵션으로 주입(DI)'
-              pros='CLI/웹 출력 전략 교체 용이'
-              cons='호출 규약을 엄격히 문서화해야 함'
-              chosen
-            />
-          </OptionCardGrid>
+          <GroupBox>
+            <ChosenGrid cols={2}>
+              <ChosenCard
+                letter='B'
+                title='단일 runSource + Lexer→Parser→Evaluator 파이프라인'
+                pros='단일 진실 공급원 — 코어 100% 재사용'
+                cons='경계 설계·에러 스키마 필요'
+              />
+              <ChosenCard
+                letter='D'
+                title='stdout 등을 옵션으로 주입(DI)'
+                pros='CLI/웹 출력 전략 교체 용이'
+                cons='호출 규약을 엄격히 문서화해야 함'
+              />
+            </ChosenGrid>
 
-          <Callout>
-            <strong>선택: B + D</strong> — 단일 <Inline>runSource</Inline>{' '}
-            함수로 파이프라인을 통일하고, 출력은 <Inline>options.stdout</Inline>{' '}
-            콜백으로만 내보내 호스트가 자유롭게 처리하도록 한다. 코어에는 환경
-            API가 전혀 없다.
-          </Callout>
+            <ExcludedHeading />
+            <ExcludedRow letter='A' title='CLI용/Web용 평가기 복제' cons='로직 드리프트, 유지 불가' />
+            <ExcludedRow letter='C' title='Core가 console.log 직접 호출' cons='호스트 교체·테스트 어려움' />
+
+            <DiscoveryBlock>
+              이전 학습 코드에서 의존성 방향을 의식하지 않아 코어 로직에 인프라(파일 I/O, console 등)가 직접 박혀 있어,
+              환경이 바뀔 때마다 코어를 손봐야 했고 결국 '새 전용 버전 통째로 복제'로 가던 패턴이 반복됐다.
+              mint는 그 패턴을 반복하지 않으려 처음부터 코어와 호스트를 분리했고, 이것이 옵션 A를 시도조차 하지 않은 이유다.
+              C는 Jest 같은 표준 테스트 도구의 자연스러운 사용을 막는 설계라 첫 테스트 작성 단계에서 자연스럽게 폐기됐다.
+            </DiscoveryBlock>
+          </GroupBox>
+
+          <p style={{ fontSize: 14, color: "var(--doc-ink-2)", lineHeight: 1.7, margin: "20px 0 0" }}>
+            <span
+              className='font-mono'
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--doc-accent)',
+                marginRight: 12,
+              }}
+            >
+              결정
+            </span>
+            B + D 조합 — 단일 <Inline>runSource</Inline>로 파이프라인을 통일하고, 출력은 <Inline>options.stdout</Inline> 콜백으로만 내보내 코어에 환경 API가 전혀 없다.
+          </p>
+
+          <div
+            style={{
+              border: '1px solid var(--doc-line)',
+              borderRadius: 12,
+              margin: '20px 0 0',
+              overflow: 'hidden',
+              background: '#fff',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '11px 18px',
+                background: 'var(--doc-bg-soft)',
+                borderBottom: '1px solid var(--doc-line)',
+              }}
+            >
+              <span
+                className='font-mono'
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'var(--doc-ink)',
+                  background: '#fff',
+                  border: '1px solid var(--doc-line)',
+                  padding: '2px 9px',
+                  borderRadius: 4,
+                }}
+              >
+                회고
+              </span>
+              <span
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  letterSpacing: '-0.01em',
+                  color: 'var(--doc-ink)',
+                }}
+              >
+                MintError origin 5종 결정 사고
+              </span>
+            </div>
+            <p
+              style={{
+                margin: 0,
+                padding: '16px 18px',
+                fontSize: 13.5,
+                lineHeight: 1.7,
+                color: 'var(--doc-ink-2)',
+              }}
+            >
+              두 가지 사고로 결정했다 — ① 실제 프로덕션 에러 로그 패턴을 참고해 origin이 발생 위치를 명확히 가리키게 하고,
+              ② 인터프리터의 자연 단계(<Inline>LEXER / PARSER / EVALUATOR</Inline>) + 외부 인터페이스(<Inline>CLI</Inline>) + fallback(<Inline>UNKNOWN</Inline>)이 최소 충분 집합.
+              호스트별 에러 처리가 다음 03 다이어그램에서 분리되는 결정의 출발점이다.
+            </p>
+          </div>
         </DetailSection>
       </SectionGap>
 
@@ -1036,45 +1130,33 @@ function renderErrorWeb(err: MintError): void {
             수행한다.
           </Lead>
 
-          <AchievementGrid>
-            <AchievementCard
-              title='코어 재사용'
-              description={
-                <>
-                  tokenize → parse → evaluate 파이프라인은 환경에 무관하게 동작
-                  — CLI·웹·테스트가 하나의 코어를 공유한다.
-                </>
-              }
+          <CategoryBlock num='01' name='정량 관찰' sub='호스트가 늘어도 코어는 안 흔들렸다'>
+            <CategorySingle
+              title='CLI → Web → Test 호스트가 늘어나는 동안 runSource 코어 변경 0건'
+              body={<>모든 호스트 추가는 <Inline>stdout</Inline> 콜백과 에러 렌더러 작성으로 끝났다. 한 건의 코어 fix(<Inline>+</Inline> 연산자 혼합 타입)는 환경 분리 한계가 아니라 단위 테스트 미커버 엣지케이스였다.</>}
             />
-            <AchievementCard
-              title='확장 스토리 성립'
-              description={
-                <>
-                  신규 호스트(IDE 플러그인 등)는 <Inline>options.stdout</Inline>{' '}
-                  콜백과 에러 렌더러만 작성하면 된다.
-                </>
-              }
+          </CategoryBlock>
+
+          <CategoryBlock num='02' name='설계 회고' sub='2026.04 Workbench 전면 개편'>
+            <CategorySingle
+              title='UI/어댑터 추가·교체만으로 끝났다 — 환경 분리 설계가 작동한 직접 증거'
+              body={<>UI 레이어와 호스트 어댑터 작업은 코어를 건드리지 않고 끝났다.</>}
             />
-            <AchievementCard
-              title='에러 UI 근거 확보'
-              description={
-                <>
-                  <Inline>location.line</Inline>·<Inline>hint</Inline>·
-                  <Inline>origin</Inline>이 규격화되어 라인
-                  하이라이트·툴팁·배지를 신뢰성 있게 구현할 수 있다.
-                </>
-              }
+          </CategoryBlock>
+
+          <CategoryBlock num='03' name='정직한 한계' sub='언어로 본격 프로그램은 짜보지 못함'>
+            <CategorySingle
+              title='mint 언어로 본격적인 프로그램을 짜본 경험은 부족하다'
+              body={<>인터프리터 구현에 시간이 들어 예제 코드 수준에서만 검증했다. 클로저는 일부러 후속으로 미룬 결정으로, 직접 구현해본 경험이 추후 학습 깊이로 이어질 것이라 기대한다.</>}
             />
-            <AchievementCard
-              title='테스트 용이성'
-              description={
-                <>
-                  코어에 환경 API가 없으므로 <Inline>stdout</Inline>을 배열 push
-                  콜백으로 교체하면 순수 함수처럼 검증할 수 있다.
-                </>
-              }
+          </CategoryBlock>
+
+          <CategoryBlock num='04' name='학습 동기' sub='이전 패턴을 반복하지 않으려는 의식적 결정'>
+            <CategorySingle
+              title='코어에 인프라가 박힌 과거 패턴을 반복하지 않기 위한 출발점'
+              body={<>이전 학습 코드에서 한 부분 수정에도 코어 전체를 손봐야 했고 결국 '전용 버전 복제'로 갔던 패턴을 반복하지 않으려고, 처음부터 코어와 호스트를 분리했다.</>}
             />
-          </AchievementGrid>
+          </CategoryBlock>
 
           <H3>정직한 한계</H3>
           <LimitationGrid>
