@@ -22,6 +22,7 @@ export interface HeroVideoProps {
   projectName: string;
   single?: VideoSource;
   tabs?: VideoTab[];
+  inDevelopment?: boolean;
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -46,6 +47,15 @@ const TAB_ACTIVE_SHADOW = "0 1px 3px rgba(0,0,0,0.08)";
 const TAB_BAR_BG = "rgba(26,18,41,0.05)";
 const TAB_BAR_RADIUS = 999;
 const TABS_VIDEO_MARGIN_TOP = 16;
+
+const DEV_BADGE_OFFSET = -8;
+const DEV_BADGE_PADDING_X = 12;
+const DEV_BADGE_PADDING_Y = 5;
+const DEV_BADGE_FONT_SIZE = 10;
+const DEV_BADGE_DOT_SIZE = 6;
+const DEV_BADGE_DOT_COLOR = "#FFA94D";
+const DEV_BADGE_BG = "rgba(26,18,41,0.92)";
+const DEV_BADGE_SHADOW = "0 4px 12px rgba(0,0,0,0.18)";
 
 const ENTRY_ANIMATION = {
   initial: { opacity: 0, scale: 0.98 },
@@ -164,6 +174,26 @@ function VideoPlayer({
   );
 }
 
+// ─── StaticPoster ───────────────────────────────────────────────────────────
+
+function StaticPoster({
+  poster,
+  aspectRatio,
+  projectName,
+}: {
+  poster: string;
+  aspectRatio: string;
+  projectName: string;
+}) {
+  return (
+    <img
+      src={poster}
+      alt={`${projectName} 화면 캡처`}
+      style={{ width: "100%", aspectRatio, objectFit: "cover", display: "block" }}
+    />
+  );
+}
+
 // ─── VideoContainer ─────────────────────────────────────────────────────────
 
 function VideoContainer({
@@ -177,10 +207,57 @@ function VideoContainer({
 }) {
   const hasSrc = hasVideoSrc(source?.src);
 
-  return hasSrc && source ? (
-    <VideoPlayer source={source} aspectRatio={aspectRatio} projectName={projectName} />
-  ) : (
-    <VideoPlaceholder aspectRatio={aspectRatio} />
+  if (hasSrc && source) {
+    return <VideoPlayer source={source} aspectRatio={aspectRatio} projectName={projectName} />;
+  }
+  if (source?.poster) {
+    return (
+      <StaticPoster
+        poster={source.poster}
+        aspectRatio={aspectRatio}
+        projectName={projectName}
+      />
+    );
+  }
+  return <VideoPlaceholder aspectRatio={aspectRatio} />;
+}
+
+// ─── DevBadge ───────────────────────────────────────────────────────────────
+
+function DevBadge() {
+  return (
+    <div
+      aria-label="개발 진행 중"
+      style={{
+        position: "absolute",
+        top: DEV_BADGE_OFFSET,
+        right: DEV_BADGE_OFFSET,
+        padding: `${DEV_BADGE_PADDING_Y}px ${DEV_BADGE_PADDING_X}px`,
+        background: DEV_BADGE_BG,
+        color: "rgba(255,255,255,0.96)",
+        fontFamily: "monospace",
+        fontSize: DEV_BADGE_FONT_SIZE,
+        letterSpacing: "0.1em",
+        borderRadius: 999,
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        boxShadow: DEV_BADGE_SHADOW,
+        zIndex: 2,
+        pointerEvents: "none",
+      }}
+    >
+      <span
+        style={{
+          width: DEV_BADGE_DOT_SIZE,
+          height: DEV_BADGE_DOT_SIZE,
+          borderRadius: "50%",
+          background: DEV_BADGE_DOT_COLOR,
+          boxShadow: `0 0 6px rgba(255,169,77,0.6)`,
+        }}
+      />
+      개발 중
+    </div>
   );
 }
 
@@ -245,9 +322,11 @@ function InlineLandscape({
 function InlinePortrait({
   source,
   projectName,
+  inDevelopment,
 }: {
   source?: VideoSource;
   projectName: string;
+  inDevelopment?: boolean;
 }) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -256,13 +335,16 @@ function InlinePortrait({
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
       {...(prefersReducedMotion ? {} : ENTRY_ANIMATION)}
     >
-      <PhoneFrame>
-        <VideoContainer
-          source={source}
-          aspectRatio={VIDEO_ASPECT_PORTRAIT}
-          projectName={projectName}
-        />
-      </PhoneFrame>
+      <div style={{ position: "relative" }}>
+        <PhoneFrame>
+          <VideoContainer
+            source={source}
+            aspectRatio={VIDEO_ASPECT_PORTRAIT}
+            projectName={projectName}
+          />
+        </PhoneFrame>
+        {inDevelopment && <DevBadge />}
+      </div>
       {source?.caption && (
         <Caption text={source.caption} style={{ marginTop: 12 }} />
       )}
@@ -417,12 +499,18 @@ function Caption({ text, style }: { text: string; style?: React.CSSProperties })
 
 // ─── HeroVideo (exported) ───────────────────────────────────────────────────
 
-export function HeroVideo({ layout, projectName, single, tabs }: HeroVideoProps) {
+export function HeroVideo({ layout, projectName, single, tabs, inDevelopment }: HeroVideoProps) {
   switch (layout) {
     case "inline-landscape":
       return <InlineLandscape source={single} projectName={projectName} />;
     case "inline-portrait":
-      return <InlinePortrait source={single} projectName={projectName} />;
+      return (
+        <InlinePortrait
+          source={single}
+          projectName={projectName}
+          inDevelopment={inDevelopment}
+        />
+      );
     case "tabs": {
       if (!tabs || tabs.length === 0) {
         return null;

@@ -21,6 +21,8 @@ import {
 import { CategoryBlock, CategoryList, CategorySingle } from "@/components/detail/AchievementCategory";
 import { Github, Figma } from "lucide-react";
 
+import jokaSelectionMode from "@assets/images/joka-selection-mode.png";
+
 // ─── Further Reading data ────────────────────────────────────────────────────
 
 const FURTHER_READING: FurtherReadingItem[] = [
@@ -119,7 +121,12 @@ export function JokaDetail({ onBack }: { onBack: () => void }) {
       heroVideo={{
         layout: "inline-portrait",
         projectName: "Joka",
-        single: { src: "", caption: "가족 사진 타임라인 흐름" },
+        single: {
+          src: "",
+          poster: jokaSelectionMode,
+          caption: "선택 모드 — 사진 다중 선택 후 다운로드",
+        },
+        inDevelopment: true,
       }}
       onBack={onBack}
     >
