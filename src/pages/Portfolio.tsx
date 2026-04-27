@@ -107,8 +107,7 @@ const PROJECTS = [
   {
     id: 'frogger',
     title: 'Frogger',
-    oneliner:
-      'AI 알고리즘 시각화 디버거 — 컨텍스트 관리 & Claude 공통 사용법 담당',
+    oneliner: 'AI 알고리즘 시각화 디버거',
     period: '2026.04',
     tags: ['Claude Code', 'CLAUDE.md', '슬래시 커맨드'],
     accentColor: '#FED7AA',
