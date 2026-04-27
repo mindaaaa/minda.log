@@ -234,39 +234,92 @@ interface LimitationCardProps {
   note: string;
 }
 
+const LIMITATION_ICON_SIZE = 32;
+const LIMITATION_LABEL_COL = 44;
+
 export function LimitationCard({ item, status, note }: LimitationCardProps) {
   return (
     <div
       style={{
         background: "#fff",
         border: "1px solid var(--doc-line)",
-        borderRadius: 10,
-        padding: 20,
+        borderRadius: 12,
+        padding: "22px 24px",
       }}
     >
-      <div className="flex gap-2.5 items-start">
+      <div className="flex items-center" style={{ gap: 12, marginBottom: 16 }}>
         <span
           className="flex items-center justify-center shrink-0"
           style={{
-            width: 20,
-            height: 20,
+            width: LIMITATION_ICON_SIZE,
+            height: LIMITATION_ICON_SIZE,
             borderRadius: "50%",
-            marginTop: 2,
             background: "var(--doc-line-soft)",
           }}
         >
-          <AlertTriangle size={11} strokeWidth={2.5} style={{ color: "var(--doc-ink-4)" }} />
+          <AlertTriangle size={16} strokeWidth={2} style={{ color: "var(--doc-ink-3)" }} />
         </span>
-        <div>
-          <p style={{ fontSize: 15, fontWeight: 600, color: "var(--doc-ink)", lineHeight: 1.4, marginBottom: 2 }}>
-            {item}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--doc-ink-2)", lineHeight: 1.55, marginBottom: 2 }}>
-            {status}
-          </p>
-          <p style={{ fontSize: 12, color: "var(--doc-ink-4)", lineHeight: 1.5 }}>{note}</p>
-        </div>
+        <p
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            color: "var(--doc-ink)",
+            lineHeight: 1.4,
+            margin: 0,
+          }}
+        >
+          {item}
+        </p>
       </div>
+
+      <LimitationRow label="현재" tone="muted">{status}</LimitationRow>
+      <LimitationRow label="다음" tone="accent">{note}</LimitationRow>
+    </div>
+  );
+}
+
+function LimitationRow({
+  label,
+  tone,
+  children,
+}: {
+  label: string;
+  tone: "muted" | "accent";
+  children: React.ReactNode;
+}) {
+  const labelColor = tone === "accent" ? "var(--doc-accent)" : "var(--doc-ink-4)";
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: `${LIMITATION_LABEL_COL}px 1fr`,
+        gap: 12,
+        alignItems: "baseline",
+        marginTop: 6,
+      }}
+    >
+      <span
+        className="font-mono"
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: labelColor,
+        }}
+      >
+        {label}
+      </span>
+      <span
+        style={{
+          fontSize: 13.5,
+          color: "var(--doc-ink-2)",
+          lineHeight: 1.55,
+        }}
+      >
+        {children}
+      </span>
     </div>
   );
 }

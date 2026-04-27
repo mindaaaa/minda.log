@@ -6,9 +6,19 @@ import {
   Lead, H2, H3, BulletList, SectionDivider, Callout, Inline,
   DetailTable, CodeBlock,
 } from "@/components/detail/DetailPrimitives";
-import { OptionCard, OptionCardGrid, AchievementCard, AchievementGrid, LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
+import { LimitationCard, LimitationGrid, StackChip, StackRow, DocMeta } from "@/components/detail/DetailCards";
 import { DetailActionButton, ActionRow } from "@/components/detail/DetailActionButton";
 import { useHeroLayout } from "@/components/detail/DetailContext";
+import { DiscoveryTimeline } from "@/components/detail/DiscoveryTimeline";
+import {
+  GroupBox,
+  DecisionTree, TreeQuestion, TreeOptions, TreeFinal,
+  ChosenCard, ChosenGrid,
+  ExcludedHeading, ExcludedRow,
+  DiscoveryBlock,
+  SplitLayout,
+} from "@/components/detail/IdeationVisuals";
+import { CategoryBlock, CategoryList, CategorySingle } from "@/components/detail/AchievementCategory";
 import { Github, Figma, BookOpen } from "lucide-react";
 
 // ─── Further Reading data ────────────────────────────────────────────────────
@@ -356,7 +366,7 @@ function HeroContent() {
       </p>
       <DocMeta items={[
         { key: "역할", value: "Frontend Lead" },
-        { key: "기간", value: "2025.08 — 2026.02" },
+        { key: "기간", value: "2025.12 — 2026.02" },
         { key: "스택", value: (
           <StackRow>
             {["React", "TypeScript", "TanStack Query", "Naver Maps SDK", "Sentry", "모노레포"].map((t) => (
@@ -401,11 +411,78 @@ export function LocusDetail({ onBack }: { onBack: () => void }) {
         <H2>이벤트 × 렌더링 × 상태가 겹치는 지도 도메인의 복합 문제</H2>
 
         <Lead>
+          일반 CRUD는 사용자의 한 번의 행위가 한 번의 사이클(요청 → 응답 → 갱신)로 끝난다.
+          지도는 사용자가 손가락을 끄는 동안에도 <Inline>bounds</Inline>가 끊임없이 바뀌어,
+          한 인터랙션이 사이클을 연속으로 폭주시킨다 — 그래서 네트워크·메모리·렌더링이 동시에 부담을 받는다.
+        </Lead>
+        <Lead>
+          사이클이 연속이라 한 축만 풀면 다른 축이 무너진다. 캐시만 안정화하면 메모리가 누적되고,
+          메모리만 잡으면 캐시 키가 깨지고, SDK만 빠르게 띄우면 컨테이너 타이밍이 깨진다.
+          같은 사이클의 다른 시점에 위치한 문제들이라 분리 해결이 불가능하다.
+        </Lead>
+
+        <Lead>
           Locus는 사용자가 지도 위에서 공간 기반 기록을 남기고 탐색하는 서비스다. 일반 CRUD 앱과 달리
           지도 이동·줌 변경이 실시간으로 네트워크 요청, 상태 갱신, 렌더링을 동시에 건드리는 구조를 가진다.
           이 교차점에서 네트워크 비용, 메모리 과부하, 초기 로딩 품질, 모바일 UX까지 여러 문제가 동시에 발생했다.
         </Lead>
 
+        <DiscoveryTimeline
+          title="발견 순서 — 6개 축은 동시에 보이지 않았다"
+          steps={[
+            {
+              num: "Step 1",
+              eyebrow: "외부 신호",
+              title: "카페에서 작업하던 팀원의 보고",
+              metas: [
+                { key: "신호", body: <>“내가 기록한 게 안 보인다.” 에러 로그 없음.</> },
+                { key: "계기", body: <>직접 시연을 보니 지도 타일까지 늦게 오고 있었다 → 네트워크 환경 문제로 짐작.</> },
+              ],
+            },
+            {
+              num: "Step 2",
+              eyebrow: "재현",
+              title: "DevTools Slow 3G로 재현",
+              metas: [
+                { key: "관찰", body: <>지도를 조금만 움직여도 <Inline>bounds</Inline> 기반 API가 끊임없이 호출된다.</> },
+                { key: "추적", body: <>TanStack Query devtools에서 같은 지역을 봐도 매번 새 쿼리가 생기는 걸 확인.</> },
+              ],
+            },
+            {
+              num: "Step 3",
+              eyebrow: "원인 식별",
+              title: "queryKey가 미세 bounds 변화에 너무 민감",
+              metas: [
+                { key: "결론", body: <>캐시 키가 사실상 부재한 상태였다.</> },
+                { key: "결정", body: <>격자 반올림으로 키를 안정화 — 이때부터 02의 ① 네트워크·캐시 축이 명확해졌다.</> },
+              ],
+            },
+            {
+              num: "Step 4",
+              eyebrow: "정직한 한계",
+              title: "6개를 ‘한 사이클의 연쇄’로 묶은 순간은 없었다",
+              isFinal: true,
+              metas: [
+                { key: "한계", body: <>인터랙션 폭주 → 렌더링 부담은 API가 항상 성공해 로그조차 안 남았다. 트레이스를 심어도 호출량 자체가 너무 많아 신호를 추리기 어려웠다.</> },
+                { key: "이어짐", body: <>이 관측성의 한계가 다음 프로젝트 <strong className="text-foreground">Joka의 4계층 로거</strong>(<Inline>expected / business / operational / bug</Inline>)와 fingerprint 그룹화 설계의 직접 동기가 됐다.</> },
+              ],
+            },
+          ]}
+        />
+
+        <p
+          className="font-mono"
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--doc-ink-4)",
+            margin: "28px 0 8px",
+          }}
+        >
+          한눈에 본 6개 축
+        </p>
         <BulletList items={[
           <><strong className="text-foreground">네트워크 · 비용:</strong> 지도를 조금만 움직여도 bounds가 변해 API가 반복 호출되고, 인프라 트래픽과 깜빡임이 동시에 증가한다.</>,
           <><strong className="text-foreground">캐시 키 민감도:</strong> 미세 패닝마다 queryKey가 달라지면 TanStack Query 캐시가 매번 미스 나 사실상 캐시가 없는 것과 동일해진다.</>,
@@ -433,50 +510,127 @@ export function LocusDetail({ onBack }: { onBack: () => void }) {
             모든 선택은 구현 단순성과 운영 안정성 사이의 균형을 기준으로 결정했다.
           </Lead>
 
+          {/* ① 네트워크·캐시 — 결정트리 (두 단계 의사결정 + 최종 결정의 발견 흔적) */}
           <H3>① 네트워크 · 캐시 전략</H3>
-          <OptionCardGrid>
-            <OptionCard letter="A" title="pan/zoom마다 즉시 fetch" pros="구현 단순" cons="요청 폭주, 비용·깜빡임" />
-            <OptionCard letter="B" title="확장 bounds + 줌별 배수(1.5~3배)" pros="드래그 한 번을 한 묶음으로 커버" cons="배수·경계 재요청 조건 튜닝 필요" chosen />
-            <OptionCard letter="C" title="queryKey = 원시 bounds" pros="지리적으로 정밀" cons="미세 이동마다 캐시 미스" />
-            <OptionCard letter="D" title="queryKey = 격자 반올림, 요청 payload = 원본" pros="서버 정밀도 유지 + 클라 캐시 안정" cons="팀원에게 키와 요청이 다르다고 설명 필요" chosen />
-          </OptionCardGrid>
-          <Callout>
-            <strong>선택: B + D</strong> — 확장 bounds로 prefetch 범위를 넓히고, queryKey는 격자 반올림으로 안정화한다. API payload에는 원본 bounds를 그대로 전달해 서버 정밀도를 유지한다.
-          </Callout>
+          <GroupBox eyebrow="의사결정 흐름">
+            <DecisionTree>
+              <TreeQuestion eyebrow="질문" text="언제 fetch할 것인가?" />
+              <TreeOptions
+                options={[
+                  { letter: "A", title: "매번 즉시 fetch", sub: "→ 요청 폭주, Slow 3G에서 깜빡임" },
+                  { letter: "B", title: "확장 bounds + 줌별 배수", sub: "→ 드래그 한 번을 한 묶음으로 커버", chosen: true },
+                ]}
+              />
+              <TreeQuestion eyebrow="다음 질문" text="queryKey를 어떻게 안정화할 것인가?" />
+              <TreeOptions
+                options={[
+                  { letter: "C", title: "원시 bounds", sub: "→ 미세 이동마다 캐시 미스" },
+                  { letter: "D", title: "격자 반올림 (payload는 원본)", sub: "→ 서버 정밀도 + 클라 캐시 안정", chosen: true },
+                ]}
+              />
+              <TreeFinal
+                title="B + D 조합"
+                discovery="시드 데이터 시연에서는 문제가 안 보였다. 카페에서 작업하던 팀원의 “기록한 게 안 보인다” 보고로 Slow 3G 재현 → bounds API 폭주를 확인한 시점에 격자 캐시 전환을 결정했다."
+              />
+            </DecisionTree>
+          </GroupBox>
 
+          {/* ② 메모리 — chosen 3카드 + 검토 후 제외 + 실제로는 */}
           <H3>② 메모리 · 표시 데이터 분리</H3>
-          <OptionCardGrid>
-            <OptionCard letter="A" title="fetch된 전부를 항상 렌더" pros="구현 단순" cons="마커 수 폭주 시 메모리·프레임 붕괴" />
-            <OptionCard letter="B" title="Map에 타임스탬프와 함께 누적 + 상한(1,000) + 오래된 것부터 제거" pros="장시간 탐색에서도 상한이 있음" cons="LRU 정책·줌 아웃 기준 필요" chosen />
-            <OptionCard letter="C" title="줌 임계(7 미만)에서 캐시 전체 flush" pros="광역 뷰에서 불필요한 데이터 일괄 정리" cons="탐색 깊이에 따라 다시 fetch 발생" chosen />
-            <OptionCard letter="D" title="화면 bounds 안의 것만 useMemo로 derive" pros="렌더 대상만 줄어듦" cons="전역 맵과 파생 배열 동기화 유지 필요" chosen />
-          </OptionCardGrid>
-          <Callout>
-            <strong>선택: B + C + D</strong> — 누적 Map으로 장시간 탐색을 커버하고, 상한·플러시로 메모리 안정성을 확보한 뒤, 화면 내 데이터만 useMemo로 파생해 렌더 부담을 분리한다.
-          </Callout>
+          <GroupBox>
+            <ChosenGrid cols={3}>
+              <ChosenCard
+                letter="B"
+                title="상한 1,000 + 오래된 것부터 제거"
+                pros="장시간 탐색 상한 보장"
+                cons="LRU 정책 필요"
+              />
+              <ChosenCard
+                letter="C"
+                title="광역 줌(<7)에서 캐시 flush"
+                pros="광역 뷰 일괄 정리"
+                cons="탐색 깊이마다 재 fetch"
+              />
+              <ChosenCard
+                letter="D"
+                title="화면 내만 useMemo"
+                pros="렌더 대상 감소"
+                cons="파생 동기화 유지"
+              />
+            </ChosenGrid>
+            <ExcludedHeading />
+            <ExcludedRow letter="A" title="fetch된 전부를 항상 렌더" cons="메모리·프레임 붕괴" />
+            <DiscoveryBlock>
+              처음에는 상한 없이 무한 누적으로 시작했다. 시연 중 사용자가 지도를 오래 탐색할수록 저사양 기기에서 프레임 드롭과 프리징이 발생하는 걸 직접 봤고, 그 시점에 상한과 timestamp 기반 제거 정책(LRU 단순화 버전)을 도입했다. 광역 줌 아웃은 어차피 개별 마커가 의미 없는 뷰라 전체 flush로 단순화했다.
+            </DiscoveryBlock>
+          </GroupBox>
 
+          {/* ③ SDK 로딩 — chosen 2카드 + 검토 후 제외 (워크북 답 없음) */}
           <H3>③ SDK 로딩 · 프레임 초기화</H3>
-          <OptionCardGrid>
-            <OptionCard letter="A" title="index.html에 스크립트 동기 태그" pros="빠른 PoC" cons="파싱·실행이 메인 스레드를 오래 점유" />
-            <OptionCard letter="B" title="동적 삽입 + loadingPromise 싱글톤" pros="중복 주입·레이스 방지" cons="로드 실패·타임아웃 처리 필요" chosen />
-            <OptionCard letter="C" title="컨테이너 크기 0이면 rAF으로 재시도" pros="레이아웃 안 잡힌 상태에서 인스턴스 생성 방지" cons="초기화 지연·조건 분기 증가" chosen />
-            <OptionCard letter="D" title="최초 페인트 후 rAF + 짧은 setTimeout으로 오버레이 제거" pros="React 첫 프레임과 브라우저 페인트 정렬" cons="타이밍 매직넘버 관리" />
-          </OptionCardGrid>
-          <Callout>
-            <strong>선택: B + C</strong> — 스크립트 삽입은 싱글톤 promise로 한 번만 진행하고, 컨테이너 크기 확인은 rAF 폴링으로 처리해 레이아웃이 준비된 뒤 맵 인스턴스를 생성한다.
-          </Callout>
+          <GroupBox>
+            <ChosenGrid cols={2}>
+              <ChosenCard
+                letter="B"
+                title="동적 삽입 + loadingPromise 싱글톤"
+                pros="중복 주입·레이스 방지"
+                cons="실패·타임아웃 처리 필요"
+              />
+              <ChosenCard
+                letter="C"
+                title="컨테이너 0이면 rAF 폴링"
+                pros="레이아웃 미준비 인스턴스 방지"
+                cons="초기화 지연·분기 증가"
+              />
+            </ChosenGrid>
+            <ExcludedHeading />
+            <ExcludedRow letter="A" title="index.html 동기 스크립트 태그" cons="메인 스레드 점유" />
+            <ExcludedRow letter="D" title="rAF + setTimeout 오버레이 제거" cons="매직넘버 관리" />
+          </GroupBox>
 
+          {/* ④ 모바일 UX — 좌우 분할 (chosen ↔ 제외 + 실제로는) */}
           <H3>④ 모바일 UX</H3>
-          <OptionCardGrid>
-            <OptionCard letter="A" title="모든 상세를 별도 라우트 풀페이지" pros="구현 익숙" cons="지도 컨텍스트와 분리되기 쉬움" />
-            <OptionCard letter="B" title="BottomSheet + 지도 위 오버레이" pros="한 손·지도 고정 UX" cons="시트·맵 이벤트 전파 제어 필요" chosen />
-          </OptionCardGrid>
+          <GroupBox>
+            <SplitLayout
+              chosen={
+                <ChosenCard
+                  letter="B"
+                  title="BottomSheet + 지도 오버레이"
+                  pros="한 손·지도 고정 UX"
+                  cons="시트·맵 이벤트 전파 제어"
+                />
+              }
+              excluded={
+                <>
+                  <ExcludedHeading noTopMargin />
+                  <ExcludedRow letter="A" title="상세를 별도 라우트 풀페이지" cons="지도 컨텍스트 분리" stacked />
+                  <DiscoveryBlock>
+                    BottomSheet 구현이 부담스러워 풀페이지로 시작했다. “걸어다니며 한 손으로 낙서하듯 쓰는” 시나리오에 수렴하면서, 두 손이 필요한 풀페이지를 포기하고 BottomSheet로 전환했다.
+                  </DiscoveryBlock>
+                </>
+              }
+            />
+          </GroupBox>
 
+          {/* ⑤ 관측성 — 좌우 분할 */}
           <H3>⑤ 관측성 · Sentry 노이즈</H3>
-          <OptionCardGrid>
-            <OptionCard letter="A" title="모든 warn을 Sentry로" pros="놓칠 것 없음" cons="빈번한 경고로 쿼터·노이즈 폭발" />
-            <OptionCard letter="B" title="경고마다 sendToSentry 플래그로 제어" pros="운영 단계별 노이즈 차단" cons="정책 문서화 필요" chosen />
-          </OptionCardGrid>
+          <GroupBox>
+            <SplitLayout
+              chosen={
+                <ChosenCard
+                  letter="B"
+                  title="sendToSentry 플래그로 제어"
+                  pros="운영 단계별 노이즈 차단"
+                  cons="정책 문서화 필요"
+                />
+              }
+              excluded={
+                <>
+                  <ExcludedHeading noTopMargin />
+                  <ExcludedRow letter="A" title="모든 warn을 Sentry로" cons="쿼터·노이즈 폭발" stacked />
+                </>
+              }
+            />
+          </GroupBox>
         </DetailSection>
       </SectionGap>
 
@@ -632,22 +786,20 @@ const waitForContainerSize = (): Promise<boolean> => {
           <Lead>
             bounds가 무효에 가까울 때(초기 레이아웃 등)는 경고 로그만 남기고
             <Inline>sendToSentry: false</Inline>로 빈번한 케이스를 Sentry에서 제외한다.
-            Joka에서 구축한 레이어 기반 로거 정책(<Inline>expected / business / operational / bug</Inline>)과
-            같은 접근법을 Locus에도 적용해 운영 노이즈를 차단한다.
+            이 노이즈 제어 경험은 후속 프로젝트(Joka)에서 4계층 로거 정책
+            (<Inline>expected / business / operational / bug</Inline>)으로 구조화·확장됐다.
           </Lead>
           <CodeBlock filename="infra/api/services/recordService.ts" code={`// bounds 유효성 검증 — 빈번한 경고는 Sentry에서 제외
-function validateBounds(bounds: Bounds): void {
-  const isValidBounds =
-    bounds.neLat > bounds.swLat &&
-    bounds.neLng > bounds.swLng &&
-    Math.abs(bounds.neLat - bounds.swLat) > MIN_BOUNDS_DIFF;
+const MIN_BOUNDS_DIFF = 0.0001;
 
-  if (!isValidBounds) {
-    logger.operational('Invalid bounds detected', {
-      bounds,
-      sendToSentry: false, // 초기 레이아웃 등 빈번한 케이스 제외
-    });
-  }
+if (validatedRequest.neLat - validatedRequest.swLat < MIN_BOUNDS_DIFF) {
+  logger.warn('Invalid bounds: neLat과 swLat이 너무 가까워서 기록 조회 불가', {
+    neLat: validatedRequest.neLat,
+    swLat: validatedRequest.swLat,
+    diff: validatedRequest.neLat - validatedRequest.swLat,
+    sendToSentry: false, // 빈번한 경고이므로 Sentry 전송 비활성화
+  });
+  return { records: [], totalCount: 0 };
 }`} />
         </DetailSection>
       </SectionGap>
@@ -675,13 +827,50 @@ function validateBounds(bounds: Bounds): void {
           </div>
 
           <H3>정성적 성과</H3>
-          <AchievementGrid>
-            <AchievementCard title="패닝 구간 캐시 재사용" description="같은 격자 내 이동에서는 네트워크 요청 없이 캐시 HIT — 깜빡임·트래픽 비용 동시 감소." />
-            <AchievementCard title="장시간 사용 메모리 안정" description="기록 개수 상한(1,000)과 광역 줌 flush로 장시간 탐색 시에도 런타임 안정성 확보." />
-            <AchievementCard title="프리징·화이트아웃 완화" description="SDK·컨테이너·첫 페인트 순서를 정리해 초기화 실패 케이스 제거." />
-            <AchievementCard title="모바일 흐름 정리" description="BottomSheet로 지도 탐색과 기록 상세가 같은 화면에서 공존." />
-            <AchievementCard title="Sentry 노이즈 제어" description="sendToSentry 플래그로 빈번한 경고를 운영 환경에서 제외." />
-          </AchievementGrid>
+
+          <CategoryBlock num="01" name="사용자 체감" sub="시연·관찰에서 확인">
+            <CategoryList
+              items={[
+                {
+                  title: "같은 격자 내 패닝에서 마커 깜빡임이 사라졌다",
+                  body: <>Locus 커스텀 마커는 광휘 효과가 들어가 일반 마커보다 렌더 부담이 컸는데, 같은 격자 안 이동에서 마커가 다시 그려지지 않으면서 효과가 끊기지 않게 됐다. 저네트워크 환경에서 마커가 사라졌다 다시 나타나는 구간도 함께 사라졌다.</>,
+                },
+                {
+                  title: "장시간 탐색에서 프리징이 멈췄다",
+                  body: <>상한 1,000으로 누적이 멈췄고, 광역 줌 아웃은 어차피 개별 마커가 의미 없는 뷰이므로 전체 flush로 정리해 줌 전환 시 끊김이 없어졌다.</>,
+                },
+                {
+                  title: "초기 화이트아웃이 완화됐다",
+                  body: <>SDK·컨테이너·첫 페인트 순서를 정리해 초기화 실패 케이스를 제거했다.</>,
+                },
+              ]}
+            />
+          </CategoryBlock>
+
+          <CategoryBlock num="02" name="도구 측정" sub="React DevTools · Lighthouse">
+            <CategorySingle
+              title="React DevTools Profiler에서 Marker 영역이 빨강 → 초록으로 이동"
+              body={<>Lighthouse 55→71과 별개로, 컴포넌트별 렌더 비용을 관찰했다. 격자 캐시·메모리 거버넌스 도입 전 Marker 관련 컴포넌트가 빨강으로 두드러졌고, 도입 후 초록 영역으로 이동하는 걸 확인했다.</>}
+              limit={{
+                label: "한계",
+                body: <>정확한 ms 수치를 기록해두지 않았다. 다음 프로젝트에서는 Profiler 기록 export로 보완할 계획.</>,
+              }}
+            />
+          </CategoryBlock>
+
+          <CategoryBlock num="03" name="설계 회고" sub="02 ④ 결정의 후속 검증">
+            <CategorySingle
+              title="한 손 사용성을 포기할 수 없어 BottomSheet로 전환한 결정은 옳았다"
+              body={<>“걸어다니며 한 손으로 낙서하듯 쓰는” 휘발성 메모 시나리오에 수렴하면서, 두 손이 필요한 풀페이지를 포기한 선택. 시연에서 사용자가 한 손으로 지도를 탐색하면서 시트를 열고 닫는 흐름이 끊기지 않는 걸 확인했고, 시트 높이 동적 조절 부담은 받아들일 만했다.</>}
+            />
+          </CategoryBlock>
+
+          <CategoryBlock num="04" name="운영 · 관측성" sub="Joka 4계층 로거의 직접 동기">
+            <CategorySingle
+              title="sendToSentry 플래그로 신호와 노이즈를 분리했다"
+              body={<>빈번한 bounds 경고를 운영 환경에서 제외해 실제 신호와 노이즈를 분리했다. 이 경험이 다음 프로젝트 Joka의 4계층 로거 정책의 직접 동기가 됐다.</>}
+            />
+          </CategoryBlock>
 
           <H3>한계 및 후속 과제</H3>
           <LimitationGrid>
