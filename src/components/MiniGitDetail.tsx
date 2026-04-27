@@ -329,7 +329,7 @@ function HeroContent() {
       </p>
       <DocMeta items={[
         { key: "역할", value: "개인 학습 프로젝트" },
-        { key: "기간", value: "2025.03 — 2025.06" },
+        { key: "기간", value: "2025.05 — 2025.06 (코어), 2026.04 (web playground)" },
         { key: "스택", value: (
           <StackRow>
             {["Node.js", "JavaScript", "SHA-1", "zlib", "Content-Addressable", "CLI"].map((t) => (

@@ -162,13 +162,13 @@ export function JokaDetail({ onBack }: { onBack: () => void }) {
           <LayerStack>
             <LayerCard name="log.expected" color="#10b981" target="Console only" description="예상된 흐름 — 운영 노이즈 없음" />
             <LayerCard name="log.business" color="#3b82f6" target="Console + Sentry(info, 샘플링)" description="비즈니스 이벤트 — BUSINESS_SAMPLE_RATE 기준 보조 전송" />
-            <LayerCard name="log.operational" color="#f59e0b" target="Sentry(warning, whitelist)" description="허용 메시지 화이트리스트 통과 시에만 전송" />
+            <LayerCard name="log.operational" color="#f59e0b" target="Sentry(warning, allowlist)" description="허용 메시지 Allowlist 통과 시에만 전송" />
             <LayerCard name="log.bug" color="#ef4444" target="Sentry(error, captureException)" description="미처리 예외·ErrorBoundary → 즉시 보고" />
           </LayerStack>
 
           <CodeBlock
             language="typescript"
-            filename="shared/lib/logger/index.ts"
+            filename="shared/lib/logger/index.ts (feat/#38 브랜치)"
             code={`// 레이어별 Console vs Sentry 분기
 const log = {
   // 예상된 흐름 — console만, 운영 노이즈 없음
@@ -205,7 +205,7 @@ const log = {
 
           <CodeBlock
             language="typescript"
-            filename="shared/lib/monitoring/sentry.policy.ts"
+            filename="shared/lib/monitoring/sentry.policy.ts (feat/#38 브랜치)"
             code={`const applyBeforeSendFilter = (event: SentryEvent): SentryEvent | null => {
   const layer = event.tags?.layer;
 
@@ -217,7 +217,7 @@ const log = {
 
   // operational → 허용 메시지 화이트리스트 필터
   if (layer === 'operational') {
-    const allowed = OPERATIONAL_WHITELIST.includes(event.message ?? '');
+    const allowed = OPERATIONAL_ALLOWLIST.includes(event.message ?? '');
     if (!allowed) return null;
   }
 
@@ -237,15 +237,16 @@ const log = {
           {/* Security */}
           <H3>보안 — OAuth + Whitelist 2단 접근 제어</H3>
           <Lead>
-            OAuth 인증을 통과한 이후에도, 서버 측 Whitelist에 등록된 식별자만 데이터에 접근할 수 있다.
-            인가 레이어를 애플리케이션이 아닌 서버 정책으로 고정함으로써, 미인가 주체는 API에 도달하기 전 차단된다.
+            OAuth 인증을 통과한 이후에도, 서버 측 Whitelist에 등록된 식별자만 데이터에 접근할 수 있도록
+            설계했다. 인가 레이어를 애플리케이션이 아닌 서버 정책으로 고정해, 미인가 주체가
+            API에 도달하기 전 차단되는 구조를 목표로 한다 (Whitelist 인가 미들웨어 도입 진행 중).
           </Lead>
 
           <Callout>
             요청 → OAuth 인증 → Whitelist 확인 → 데이터 접근 허용
             <br />
             <span style={{ fontSize: "0.88rem", color: "rgba(20,15,40,0.55)" }}>
-              Whitelist 미포함 식별자는 서버에서 일관 차단 — 애플리케이션 레이어에 도달하지 않는다.
+              Whitelist 미포함 식별자는 서버에서 일관 차단되도록 설계 (서버 측 미들웨어 도입 진행 중).
             </span>
           </Callout>
 
@@ -287,12 +288,12 @@ const log = {
             <AchievementCard title="실측 수치" description="MTTI 정량 지표는 프로덕션 관측 후 보강 예정." />
           </AchievementGrid>
 
-          <H3>구현 상태</H3>
+          <H3>현재 main 머지 상태</H3>
           <LimitationGrid>
-            <LimitationCard item="관측성 (웹 클라이언트)" status="부분 구현" note="코드 기반 완료, 확장 가능" />
-            <LimitationCard item="FSD 레이어 구조 / 모노레포" status="완료" note="—" />
-            <LimitationCard item="Whitelist · 서버 인가" status="진행중" note="배포 브랜치 확인 필요" />
-            <LimitationCard item="PWA 빌드 설정 (vite-plugin-pwa)" status="진행중" note="프로덕션 브랜치 확인 필요" />
+            <LimitationCard item="관측성 (웹 클라이언트)" status="feat/#38 브랜치 구현 완료, main 머지 진행" note="4계층 로거 · Sentry 정책 · ErrorBoundary 코드 작성됨" />
+            <LimitationCard item="FSD 레이어 구조 / 모노레포" status="main 반영" note="—" />
+            <LimitationCard item="Whitelist · 서버 인가" status="진행중" note="현재 서버는 tester Actor 주입 단계" />
+            <LimitationCard item="PWA 빌드 설정 (vite-plugin-pwa)" status="진행중" note="vite.config.ts 미적용" />
           </LimitationGrid>
 
           <DetailFurtherReading items={FURTHER_READING} />

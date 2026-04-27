@@ -215,7 +215,7 @@ export function FroggerDetail({ onBack }: { onBack: () => void }) {
           {/* (b) 슬래시 커맨드 */}
           <H3>슬래시 커맨드 — AI 프롬프트 변경을 "타입 시스템의 이벤트"로</H3>
           <Lead>
-            8개 슬래시 커맨드로 일상 워크플로우와 변경 파일 유형별 전용 검증을 분리했다.
+            10개 슬래시 커맨드로 일상 워크플로우와 변경 파일 유형별 전용 검증을 분리했다.
             커맨드는 포기해도 되는 것이 아니라, "의도적으로 호출하는 검증"의 고정된 입구
             역할을 맡는다.
           </Lead>
@@ -235,9 +235,10 @@ export function FroggerDetail({ onBack }: { onBack: () => void }) {
           <CommandTriggers
             title="변경 유형 → 전용 검증"
             branches={[
-              { trigger: "타입 · 인터페이스", command: "/refactor-audit" },
-              { trigger: "AI 프롬프트",       command: "/prompt-diff",  highlight: true },
-              { trigger: "Worker · Trace",   command: "/trace-validate", highlight: true },
+              { trigger: "타입 · 인터페이스",  command: "/refactor-audit" },
+              { trigger: "AI 프롬프트",        command: "/prompt-diff",   highlight: true },
+              { trigger: "Worker · Trace",    command: "/trace-validate", highlight: true },
+              { trigger: "Markdown 문서",      command: "/docs-audit" },
             ]}
           />
 

@@ -225,7 +225,7 @@ function HeroContent() {
       </p>
       <DocMeta items={[
         { key: "역할", value: "개인 프로젝트" },
-        { key: "기간", value: "2025.03 — 2025.04" },
+        { key: "기간", value: "2025.03 — 2025.04 (코어), 2026.04 (UI 리디자인)" },
         { key: "스택", value: (
           <StackRow>
             {["Kotlin", "Spring Boot", "React", "JavaScript", "커서 페이지네이션", "Prefetch"].map((t) => (
@@ -358,7 +358,7 @@ return if (kanjiList.size == refinedLimit) {
 
         <PrefetchTimingDiagram />
 
-        <CodeBlock filename="useQuizEngine.js — prefetch 트리거" code={`// 잔여 슬롯 5 이하에서 다음 묶음 prefetch
+        <CodeBlock filename="pages/InfiniteMode.jsx — prefetch 트리거" code={`// 잔여 슬롯 5 이하에서 다음 묶음 prefetch
 useEffect(() => {
   const shouldPrefetchMore =
     quizList.length > 0 && quizIndex >= quizList.length - 5;
