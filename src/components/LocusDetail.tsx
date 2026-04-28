@@ -397,8 +397,22 @@ export function LocusDetail({ onBack }: { onBack: () => void }) {
         layout: "tabs",
         projectName: "Locus",
         tabs: [
-          { key: "web", label: "Web", src: "", orientation: "landscape", caption: "데스크톱 브라우저에서 지도 탐색·기록 추가" },
-          { key: "mobile", label: "Mobile", src: "", orientation: "portrait", caption: "PWA 설치 후 현장에서 빠른 기록" },
+          {
+            key: "web",
+            label: "Web",
+            src: "/videos/locus/main-desktop.webm",
+            srcFallback: "/videos/locus/main-desktop.mp4",
+            orientation: "landscape",
+            caption: "데스크톱 브라우저에서 지도 탐색·기록 추가",
+          },
+          {
+            key: "mobile",
+            label: "Mobile",
+            src: "/videos/locus/main-mobile.webm",
+            srcFallback: "/videos/locus/main-mobile.mp4",
+            orientation: "portrait",
+            caption: "PWA 설치 후 현장에서 빠른 기록",
+          },
         ],
       }}
       onBack={onBack}
