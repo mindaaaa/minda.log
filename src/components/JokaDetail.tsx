@@ -122,9 +122,10 @@ export function JokaDetail({ onBack }: { onBack: () => void }) {
         layout: "inline-portrait",
         projectName: "Joka",
         single: {
-          src: "",
+          src: "/videos/joka/full-demo-media.webm",
+          srcFallback: "/videos/joka/full-demo-media.mp4",
           poster: jokaSelectionMode,
-          caption: "선택 모드 — 사진 다중 선택 후 다운로드",
+          caption: "전체 시연 — 사진 업로드부터 그리드 조회 · 상세 편집 · 정렬까지",
         },
         inDevelopment: true,
       }}
