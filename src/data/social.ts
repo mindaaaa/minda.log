@@ -1,7 +1,7 @@
 export const SOCIAL_LINKS = {
   github: "https://github.com/mindaaaa",
   tistory: "https://404minda.tistory.com/",
-  resume: "",
+  resume: "/resume.pdf",
   email: "avalc@naver.com",
 } as const;
 

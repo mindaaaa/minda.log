@@ -42,3 +42,5 @@ Thumbs.db
 
 archive/
 previews/
+# 지원서·면접 준비 자료 (공개 레포이므로 절대 커밋 금지)
+resume/
